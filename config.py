@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - CONFIGURATION & STRIPE API KEYS
-Author: Eduardo Mex Rodriguez (EMR)
+Author: Eduardo Mexquitic Rodriguez (EMR)
 """
 
 import os
@@ -14,9 +14,9 @@ TOKEN_EXPIRE_HOURS = 24
 TELEGRAM_BOT_TOKEN = "8893915158:AAFWy8WTn2sXP0_GXgRFEKsOkGtMeOfpie0"
 TELEGRAM_CHAT_ID = "8926630685"
 
-# Live Stripe API Keys (Eduardo Mexquitic Rodriguez)
-STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "mk_1U2PHhDAaoULbJgOvnKL9tdl")
-STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "mk_1U2PHwDAaoULbJgOtZiHabvz")
+# Official Live Stripe API Keys (Read securely from Environment Variables on Cloud Server)
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "pk_test_51U2PHdDAaoULbJgOH8olrp6xjsJud7AmXO8VLLlE4j9K7kvWd8LjhSIjrDmdLwW8xLTgZVetBmzv78Pbey78gjO100fmnEdtrw")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
 
 # Pricing Tiers (USD)
 TIERS = {

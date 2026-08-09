@@ -117,4 +117,30 @@ def update_user_plan(user_id, plan):
     conn.commit()
     conn.close()
 
+def get_all_users():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, email, company, role, plan, hwid_license, created_at FROM users ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return [{
+        "id": r[0],
+        "email": r[1],
+        "company": r[2],
+        "role": r[3],
+        "plan": r[4],
+        "hwid_license": r[5],
+        "created_at": r[6]
+    } for r in rows]
+
+def update_license(user_id, new_plan, new_hwid=None):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    if new_hwid:
+        cursor.execute("UPDATE users SET plan = ?, hwid_license = ? WHERE id = ?", (new_plan, new_hwid, user_id))
+    else:
+        cursor.execute("UPDATE users SET plan = ? WHERE id = ?", (new_plan, user_id))
+    conn.commit()
+    conn.close()
+
 init_db()

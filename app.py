@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 2.5 - Dynamic Target AI Engine
+Version: 2.6 - License Management System
 """
 
 import sys
@@ -65,7 +65,7 @@ def index():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v2.5",
+        "service": "Aegis Prime SaaS Cloud Engine v2.6 (License Manager)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -183,6 +183,33 @@ def user_scans(current_user_id):
     return jsonify({"status": "SUCCESS", "scans": history})
 
 
+# --- ADMIN LICENSE MANAGEMENT ENDPOINTS ---
+
+@app.route("/api/v1/admin/users", methods=["GET"])
+@token_required
+def admin_get_users(current_user_id):
+    all_users = database.get_all_users()
+    return jsonify({"status": "SUCCESS", "total_clients": len(all_users), "users": all_users})
+
+
+@app.route("/api/v1/admin/license/update", methods=["POST"])
+@token_required
+def admin_update_license(current_user_id):
+    data = request.get_json() or {}
+    target_user_id = data.get("user_id")
+    new_plan = data.get("plan", "pro")
+    new_hwid = data.get("hwid_license")
+    
+    if not target_user_id:
+        return jsonify({"status": "ERROR", "message": "ID de usuario requerido."}), 400
+        
+    database.update_license(int(target_user_id), new_plan, new_hwid)
+    return jsonify({
+        "status": "SUCCESS",
+        "message": f"Licencia del usuario #{target_user_id} actualizada al plan '{new_plan}' exitosamente."
+    })
+
+
 # --- REAL STRIPE CHECKOUT INTEGRATION ---
 
 @app.route("/api/v1/subscriptions/checkout", methods=["POST"])
@@ -248,7 +275,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v2.5")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v2.6 (License Manager)")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

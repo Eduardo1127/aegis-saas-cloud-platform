@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AEGIS PRIME SAAS CLOUD PLATFORM - CONFIGURATION
+AEGIS PRIME SAAS CLOUD PLATFORM - CONFIGURATION & STRIPE API KEYS
 Author: Eduardo Mex Rodriguez (EMR)
 """
 
@@ -13,6 +13,10 @@ TOKEN_EXPIRE_HOURS = 24
 # Telegram Telemetry
 TELEGRAM_BOT_TOKEN = "8893915158:AAFWy8WTn2sXP0_GXgRFEKsOkGtMeOfpie0"
 TELEGRAM_CHAT_ID = "8926630685"
+
+# Live Stripe API Keys (Eduardo Mexquitic Rodriguez)
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "mk_1U2PHhDAaoULbJgOvnKL9tdl")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "mk_1U2PHwDAaoULbJgOtZiHabvz")
 
 # Pricing Tiers (USD)
 TIERS = {

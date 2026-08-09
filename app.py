@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+"""
+AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
+Author: Eduardo Mex Rodriguez (EMR)
+"""
+
+import sys
+import os
+import time
+import json
+import datetime
+import jwt
+from functools import wraps
+
+from flask import Flask, request, jsonify, render_template, redirect, url_for
+
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding='utf-8')
+
+import config
+import database
+from modules import ai_agentic_soc_copilot, cloud_security_auditor, red_recon_scanner
+
+app = Flask(__name__, static_folder="static", template_folder="templates")
+app.config["SECRET_KEY"] = config.SECRET_KEY
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if "Authorization" in request.headers:
+            auth_header = request.headers["Authorization"]
+            if auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
+        
+        if not token:
+            token = request.cookies.get("saas_jwt_token")
+            
+        if not token:
+            return jsonify({"status": "ERROR", "message": "Token de autenticación faltante."}), 401
+            
+        try:
+            data = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
+            current_user_id = data["user_id"]
+        except Exception:
+            return jsonify({"status": "ERROR", "message": "Token inválido o expirado."}), 401
+            
+        return f(current_user_id, *args, **kwargs)
+    return decorated
+
+
+# --- WEB ROUTES ---
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/api/v1/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "ONLINE",
+        "service": "Aegis Prime SaaS Cloud Engine",
+        "author": "Eduardo Mex Rodriguez (EMR)",
+        "timestamp": datetime.datetime.now().isoformat()
+    })
+
+
+# --- AUTHENTICATION API ENDPOINTS ---
+
+@app.route("/api/v1/auth/register", methods=["POST"])
+def register():
+    data = request.get_json() or {}
+    email = data.get("email")
+    password = data.get("password")
+    company = data.get("company", "")
+    
+    if not email or not password:
+        return jsonify({"status": "ERROR", "message": "Email y contraseña requeridos."}), 400
+        
+    success, user_or_err, hwid_key = database.register_user(email, password, company)
+    if not success:
+        return jsonify({"status": "ERROR", "message": user_or_err}), 400
+        
+    return jsonify({
+        "status": "SUCCESS",
+        "message": "Registro completado con éxito.",
+        "user_id": user_or_err,
+        "hwid_license": hwid_key
+    }), 201
+
+
+@app.route("/api/v1/auth/login", methods=["POST"])
+def login():
+    data = request.get_json() or {}
+    email = data.get("email")
+    password = data.get("password")
+    
+    if not email or not password:
+        return jsonify({"status": "ERROR", "message": "Email y contraseña requeridos."}), 400
+        
+    success, user_or_err = database.verify_user(email, password)
+    if not success:
+        return jsonify({"status": "ERROR", "message": user_or_err}), 401
+        
+    user = user_or_err
+    token_payload = {
+        "user_id": user["id"],
+        "email": user["email"],
+        "plan": user["plan"],
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=config.TOKEN_EXPIRE_HOURS)
+    }
+    token = jwt.encode(token_payload, config.SECRET_KEY, algorithm=config.ALGORITHM)
+    
+    resp = jsonify({
+        "status": "SUCCESS",
+        "message": "Autenticación exitosa.",
+        "token": token,
+        "user": user
+    })
+    resp.set_cookie("saas_jwt_token", token, httponly=True)
+    return resp, 200
+
+
+# --- SAAS SECURITY SCANNING API ENDPOINTS ---
+
+@app.route("/api/v1/scan/red-recon", methods=["POST"])
+@token_required
+def scan_red_recon(current_user_id):
+    data = request.get_json() or {}
+    target = data.get("target", "127.0.0.1")
+    
+    result = red_recon_scanner.scan_target(target)
+    database.record_scan(current_user_id, "RED_RECON", target, "SUCCESS", result["vulnerability_score"], json.dumps(result))
+    
+    return jsonify({
+        "status": "SUCCESS",
+        "data": result
+    })
+
+
+@app.route("/api/v1/scan/cloud-cspm", methods=["POST"])
+@token_required
+def scan_cloud_cspm(current_user_id):
+    data = request.get_json() or {}
+    target_cloud = data.get("target_cloud", "AWS / Docker / K8s")
+    
+    result = cloud_security_auditor.audit_cloud_posture(target_cloud)
+    database.record_scan(current_user_id, "CLOUD_CSPM", target_cloud, "SUCCESS", result["compliance_rating"], json.dumps(result))
+    
+    return jsonify({
+        "status": "SUCCESS",
+        "data": result
+    })
+
+
+@app.route("/api/v1/ai/copilot-briefing", methods=["POST"])
+@token_required
+def ai_copilot_briefing(current_user_id):
+    data = request.get_json() or {}
+    result = ai_agentic_soc_copilot.analyze_incident(data)
+    
+    database.record_scan(current_user_id, "AI_COPILOT", "INCIDENT_ANALYSIS", "SUCCESS", result["severity"], json.dumps(result))
+    
+    return jsonify({
+        "status": "SUCCESS",
+        "data": result
+    })
+
+
+@app.route("/api/v1/user/scans", methods=["GET"])
+@token_required
+def user_scans(current_user_id):
+    history = database.get_user_scans(current_user_id)
+    return jsonify({"status": "SUCCESS", "scans": history})
+
+
+# --- STRIPE / PAYPAL PAYMENT CHECKOUT SIMULATION ---
+
+@app.route("/api/v1/subscriptions/checkout", methods=["POST"])
+@token_required
+def checkout_subscription(current_user_id):
+    data = request.get_json() or {}
+    target_plan = data.get("plan", "pro")
+    
+    if target_plan not in config.TIERS:
+        return jsonify({"status": "ERROR", "message": "Plan no válido."}), 400
+        
+    tier_info = config.TIERS[target_plan]
+    session_id = f"cs_test_saas_{os.urandom(8).hex()}"
+    
+    # Update plan in DB
+    database.update_user_plan(current_user_id, target_plan)
+    
+    return jsonify({
+        "status": "SUCCESS",
+        "message": f"Suscripción activada con éxito en el plan {tier_info['name']}!",
+        "stripe_session_id": session_id,
+        "amount_paid": tier_info["price"],
+        "plan": target_plan
+    })
+
+
+if __name__ == "__main__":
+    print("==================================================================")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE")
+    print("   Author: Eduardo Mex Rodriguez (EMR)")
+    print("==================================================================")
+    print("🟢 Server running live at: http://localhost:5000")
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  aegis-saas:
+    build: .
+    container_name: aegis_saas_platform
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=AEGIS_SAAS_SUPER_SECRET_JWT_KEY_2026_EMR
+    restart: always

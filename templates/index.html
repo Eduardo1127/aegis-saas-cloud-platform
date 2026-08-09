@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Aegis Prime SaaS Cloud Platform — Eduardo Mex Rodriguez (EMR)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/saas_style.css">
+</head>
+<body>
+
+    <!-- SIDEBAR NAV -->
+    <div class="sidebar">
+        <div class="brand">
+            🛡️ AEGIS SAAS
+        </div>
+        <div class="nav-item active">📊 Dashboard</div>
+        <div class="nav-item">🔴 Red Recon</div>
+        <div class="nav-item">☁️ Cloud CSPM</div>
+        <div class="nav-item">🤖 Copiloto IA</div>
+        <div class="nav-item">💳 Planes & Pagos</div>
+        <div style="margin-top:auto">
+            <button onclick="handleLogout()" class="btn-primary" style="background:#ff7b72; color:#fff; width:100%;">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- AUTHENTICATION FORM -->
+        <div id="authContainer">
+            <div class="auth-modal">
+                <h2 style="margin-bottom:20px; color:var(--accent-green)">🔐 Acceso Cliente SaaS</h2>
+                <input type="email" id="loginEmail" class="input-field" placeholder="Correo Electrónico" value="cliente@empresa.com">
+                <input type="password" id="loginPassword" class="input-field" placeholder="Contraseña" value="Password123!">
+                <input type="text" id="loginCompany" class="input-field" placeholder="Nombre de tu Empresa (Opcional)" value="Empresa Demo S.A.">
+                
+                <div style="display:flex; gap:10px;">
+                    <button onclick="handleLogin()" class="btn-primary" style="flex:1;">Iniciar Sesión</button>
+                    <button onclick="handleRegister()" class="btn-primary" style="flex:1; background:var(--accent-blue);">Registrarse</button>
+                </div>
+                <div id="authMsg" style="margin-top:16px; font-size:13px;"></div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD CONTAINER -->
+        <div id="dashboardContainer" style="display:none;">
+
+            <div class="header-bar">
+                <div class="title-header">
+                    <h1>Aegis Prime SaaS Security Control Center</h1>
+                    <p style="color:var(--text-muted)">Plataforma de Monitoreo Autónomo con IA & Auditoría Cloud</p>
+                </div>
+                <div class="badge-cloud">⚡ CLOUD LIVE ENGINE</div>
+            </div>
+
+            <!-- METRIC CARDS -->
+            <div class="grid-cards">
+                <div class="card">
+                    <div class="card-title">ESTADO DE POSTURA</div>
+                    <div class="card-value">100% PROTEGIDO</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">COPILOTO DE IA</div>
+                    <div class="card-value" style="color:var(--accent-blue)">ACTIVO 24/7</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">LICENCIA HWID</div>
+                    <div class="card-value" style="color:var(--accent-purple)">EMR-SAAS-LIVE</div>
+                </div>
+            </div>
+
+            <!-- ACTION SCAN BUTTONS -->
+            <div class="card" style="margin-bottom:30px;">
+                <h3 style="margin-bottom:16px;">⚡ Ejecutar Análisis en Tiempo Real</h3>
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <input type="text" id="scanTargetIp" class="input-field" placeholder="IP o Dominio Objetivo" value="127.0.0.1" style="margin-bottom:0; width:220px;">
+                    <button onclick="triggerRedRecon()" class="btn-primary">🔴 Red Recon</button>
+                    <button onclick="triggerCloudCSPM()" class="btn-primary" style="background:var(--accent-blue); color:#fff;">☁️ Auditar Nube (CSPM)</button>
+                    <button onclick="triggerAICopilot()" class="btn-primary" style="background:var(--accent-purple); color:#fff;">🤖 Informe Copiloto IA</button>
+                </div>
+                <div id="scanResultsOutput" style="margin-top:20px; background:#0d1117; padding:16px; border-radius:8px; font-family:monospace; max-height:220px; overflow-y:auto;">
+                    <p style="color:var(--text-muted)">Selecciona una acción defensiva para ejecutar la API REST...</p>
+                </div>
+            </div>
+
+            <!-- PRICING TIERS & STRIPE CHECKOUT -->
+            <div class="card" style="margin-bottom:30px;">
+                <h3>💳 Suscripciones Comerciales SaaS (Stripe Integration)</h3>
+                <div class="pricing-table">
+                    <div class="price-card">
+                        <h4>Basic Edition</h4>
+                        <div class="price-val">$29 / mo</div>
+                        <p>50 Escaneos de Vulnerabilidades</p>
+                        <button onclick="triggerCheckout('basic')" class="btn-primary" style="margin-top:16px;">Suscribirse</button>
+                    </div>
+                    <div class="price-card featured">
+                        <h4 style="color:var(--accent-green)">Professional Edition</h4>
+                        <div class="price-val">$79 / mo</div>
+                        <p>500 Escaneos + Bot SOAR Telegram</p>
+                        <button onclick="triggerCheckout('pro')" class="btn-primary" style="margin-top:16px;">Suscribirse</button>
+                    </div>
+                    <div class="price-card">
+                        <h4>Enterprise Master SOC</h4>
+                        <div class="price-val">$149 / mo</div>
+                        <p>Escaneos Ilimitados + Copiloto IA</p>
+                        <button onclick="triggerCheckout('enterprise')" class="btn-primary" style="margin-top:16px;">Suscribirse</button>
+                    </div>
+                </div>
+                <div id="checkoutOutput" style="margin-top:16px;"></div>
+            </div>
+
+            <!-- SCAN HISTORY TABLE -->
+            <div class="card">
+                <h3>📜 Historial Reciente de Auditorías API</h3>
+                <div id="historyList" style="margin-top:16px;">
+                    <p style="color:var(--text-muted)">Cargando historial...</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="/static/js/saas_app.js"></script>
+</body>
+</html>

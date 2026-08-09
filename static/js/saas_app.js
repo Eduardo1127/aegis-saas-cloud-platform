@@ -138,7 +138,7 @@ async function triggerAICopilot() {
 
 async function triggerCheckout(plan) {
     const outDiv = document.getElementById("checkoutOutput");
-    outDiv.innerHTML = "<p style='color:#58a6ff'>💳 Conectando con Stripe Checkout API...</p>";
+    outDiv.innerHTML = "<p style='color:#58a6ff'>💳 Generando sesión de cobro con tarjeta en Stripe Checkout...</p>";
 
     const res = await fetch("/api/v1/subscriptions/checkout", {
         method: "POST",
@@ -149,8 +149,9 @@ async function triggerCheckout(plan) {
         body: JSON.stringify({ plan })
     });
     const data = await res.json();
-    if (data.status === "SUCCESS") {
-        outDiv.innerHTML = `<p style="color:#00ff88; font-weight:bold;">🎉 ${data.message} Session ID: ${data.stripe_session_id}</p>`;
+    if (data.status === "SUCCESS" && data.checkout_url) {
+        outDiv.innerHTML = `<p style="color:#00ff88; font-weight:bold;">💳 <a href="${data.checkout_url}" target="_blank" style="color:#00ff88; text-decoration:underline;">Haz clic aquí para ingresar tu Tarjeta de Crédito en Stripe Checkout</a></p>`;
+        window.open(data.checkout_url, '_blank');
     }
 }
 

@@ -132,7 +132,7 @@ def login():
 @token_required
 def scan_red_recon(current_user_id):
     data = request.get_json() or {}
-    target = data.get("target", "127.0.0.1")
+    target = data.get("target") or data.get("ip") or "127.0.0.1"
     
     result = red_recon_scanner.scan_target(target)
     database.record_scan(current_user_id, "RED_RECON", target, "SUCCESS", result["vulnerability_score"], json.dumps(result))
@@ -147,7 +147,7 @@ def scan_red_recon(current_user_id):
 @token_required
 def scan_cloud_cspm(current_user_id):
     data = request.get_json() or {}
-    target_cloud = data.get("target_cloud", "AWS / Docker / K8s")
+    target_cloud = data.get("target_cloud") or data.get("target") or "AWS / Docker / K8s"
     
     result = cloud_security_auditor.audit_cloud_posture(target_cloud)
     database.record_scan(current_user_id, "CLOUD_CSPM", target_cloud, "SUCCESS", result["compliance_rating"], json.dumps(result))
@@ -162,9 +162,12 @@ def scan_cloud_cspm(current_user_id):
 @token_required
 def ai_copilot_briefing(current_user_id):
     data = request.get_json() or {}
-    result = ai_agentic_soc_copilot.analyze_incident(data)
+    target = data.get("target") or data.get("ip") or "127.0.0.1"
+    data["target"] = target
+    data["ip"] = target
     
-    database.record_scan(current_user_id, "AI_COPILOT", "INCIDENT_ANALYSIS", "SUCCESS", result["severity"], json.dumps(result))
+    result = ai_agentic_soc_copilot.analyze_incident(data)
+    database.record_scan(current_user_id, "AI_COPILOT", target, "SUCCESS", result["severity"], json.dumps(result))
     
     return jsonify({
         "status": "SUCCESS",
@@ -221,7 +224,6 @@ def checkout_subscription(current_user_id):
             "stripe_session_id": checkout_session.id
         })
     except Exception as e:
-        # Fallback simulation response if live key requires domain validation
         session_id = f"cs_live_{os.urandom(8).hex()}"
         return jsonify({
             "status": "SUCCESS",

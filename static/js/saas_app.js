@@ -1,6 +1,6 @@
 /**
  * AEGIS PRIME SAAS CLOUD PLATFORM - FRONTEND ENGINE
- * Author: Eduardo Mex Rodriguez (EMR)
+ * Author: Eduardo Mexquitic Rodriguez (EMR)
  */
 
 let authToken = localStorage.getItem("saas_jwt_token") || null;
@@ -16,11 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
 function showAuth() {
     document.getElementById("authContainer").style.display = "block";
     document.getElementById("dashboardContainer").style.display = "none";
+    const sidebar = document.getElementById("sidebarNav");
+    if (sidebar) sidebar.style.display = "none";
 }
 
 function showDashboard() {
     document.getElementById("authContainer").style.display = "none";
     document.getElementById("dashboardContainer").style.display = "block";
+    const sidebar = document.getElementById("sidebarNav");
+    if (sidebar) sidebar.style.display = "flex";
     loadUserScans();
 }
 
@@ -41,7 +45,7 @@ async function handleLogin() {
             authToken = data.token;
             localStorage.setItem("saas_jwt_token", authToken);
             msgDiv.innerHTML = `<span style="color:#00ff88">✅ Login Exitoso! Bienvenido ${data.user.email}</span>`;
-            setTimeout(showDashboard, 1000);
+            setTimeout(showDashboard, 800);
         } else {
             msgDiv.innerHTML = `<span style="color:#ff7b72">❌ ${data.message}</span>`;
         }
@@ -83,7 +87,7 @@ function handleLogout() {
 async function triggerRedRecon() {
     const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
     const outDiv = document.getElementById("scanResultsOutput");
-    outDiv.innerHTML = "<p>⏳ Ejecutando escaneo Red Recon en vivo...</p>";
+    outDiv.innerHTML = "<p style='color:#00ff88'>⏳ Ejecutando escaneo Red Recon en vivo...</p>";
 
     const res = await fetch("/api/v1/scan/red-recon", {
         method: "POST",
@@ -94,13 +98,13 @@ async function triggerRedRecon() {
         body: JSON.stringify({ target })
     });
     const data = await res.json();
-    outDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    outDiv.innerHTML = `<pre style="color:#00ff88">${JSON.stringify(data, null, 2)}</pre>`;
     loadUserScans();
 }
 
 async function triggerCloudCSPM() {
     const outDiv = document.getElementById("scanResultsOutput");
-    outDiv.innerHTML = "<p>☁️ Auditando postura de seguridad en Nube y Contenedores...</p>";
+    outDiv.innerHTML = "<p style='color:#58a6ff'>☁️ Auditando postura de seguridad en Nube y Contenedores...</p>";
 
     const res = await fetch("/api/v1/scan/cloud-cspm", {
         method: "POST",
@@ -111,13 +115,13 @@ async function triggerCloudCSPM() {
         body: JSON.stringify({ target_cloud: "AWS / Docker / K8s" })
     });
     const data = await res.json();
-    outDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    outDiv.innerHTML = `<pre style="color:#58a6ff">${JSON.stringify(data, null, 2)}</pre>`;
     loadUserScans();
 }
 
 async function triggerAICopilot() {
     const outDiv = document.getElementById("scanResultsOutput");
-    outDiv.innerHTML = "<p>🤖 Generando informe ejecutivo con el Copiloto de IA Autónoma...</p>";
+    outDiv.innerHTML = "<p style='color:#bc8cff'>🤖 Generando informe ejecutivo con el Copiloto de IA Autónoma...</p>";
 
     const res = await fetch("/api/v1/ai/copilot-briefing", {
         method: "POST",
@@ -128,13 +132,13 @@ async function triggerAICopilot() {
         body: JSON.stringify({ ip: "185.220.101.5", severity: "CRITICAL" })
     });
     const data = await res.json();
-    outDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    outDiv.innerHTML = `<pre style="color:#bc8cff">${JSON.stringify(data, null, 2)}</pre>`;
     loadUserScans();
 }
 
 async function triggerCheckout(plan) {
     const outDiv = document.getElementById("checkoutOutput");
-    outDiv.innerHTML = "<p>💳 Conectando con Stripe Checkout API...</p>";
+    outDiv.innerHTML = "<p style='color:#58a6ff'>💳 Conectando con Stripe Checkout API...</p>";
 
     const res = await fetch("/api/v1/subscriptions/checkout", {
         method: "POST",
@@ -146,7 +150,7 @@ async function triggerCheckout(plan) {
     });
     const data = await res.json();
     if (data.status === "SUCCESS") {
-        outDiv.innerHTML = `<p style="color:#00ff88">🎉 ${data.message} Session ID: ${data.stripe_session_id}</p>`;
+        outDiv.innerHTML = `<p style="color:#00ff88; font-weight:bold;">🎉 ${data.message} Session ID: ${data.stripe_session_id}</p>`;
     }
 }
 

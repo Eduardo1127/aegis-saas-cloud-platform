@@ -87,7 +87,7 @@ function handleLogout() {
 async function triggerRedRecon() {
     const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
     const outDiv = document.getElementById("scanResultsOutput");
-    outDiv.innerHTML = "<p style='color:#00ff88'>⏳ Ejecutando escaneo Red Recon en vivo...</p>";
+    outDiv.innerHTML = `<p style='color:#00ff88'>⏳ Ejecutando escaneo Red Recon para ${target}...</p>`;
 
     const res = await fetch("/api/v1/scan/red-recon", {
         method: "POST",
@@ -103,8 +103,9 @@ async function triggerRedRecon() {
 }
 
 async function triggerCloudCSPM() {
+    const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
     const outDiv = document.getElementById("scanResultsOutput");
-    outDiv.innerHTML = "<p style='color:#58a6ff'>☁️ Auditando postura de seguridad en Nube y Contenedores...</p>";
+    outDiv.innerHTML = `<p style='color:#58a6ff'>☁️ Auditando postura de seguridad Nube/Docker para ${target}...</p>`;
 
     const res = await fetch("/api/v1/scan/cloud-cspm", {
         method: "POST",
@@ -112,7 +113,7 @@ async function triggerCloudCSPM() {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${authToken}`
         },
-        body: JSON.stringify({ target_cloud: "AWS / Docker / K8s" })
+        body: JSON.stringify({ target_cloud: target })
     });
     const data = await res.json();
     outDiv.innerHTML = `<pre style="color:#58a6ff">${JSON.stringify(data, null, 2)}</pre>`;
@@ -120,8 +121,9 @@ async function triggerCloudCSPM() {
 }
 
 async function triggerAICopilot() {
+    const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
     const outDiv = document.getElementById("scanResultsOutput");
-    outDiv.innerHTML = "<p style='color:#bc8cff'>🤖 Generando informe ejecutivo con el Copiloto de IA Autónoma...</p>";
+    outDiv.innerHTML = `<p style='color:#bc8cff'>🤖 Generando informe ejecutivo de IA para ${target}...</p>`;
 
     const res = await fetch("/api/v1/ai/copilot-briefing", {
         method: "POST",
@@ -129,7 +131,7 @@ async function triggerAICopilot() {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${authToken}`
         },
-        body: JSON.stringify({ ip: "185.220.101.5", severity: "CRITICAL" })
+        body: JSON.stringify({ ip: target, severity: "CRITICAL" })
     });
     const data = await res.json();
     outDiv.innerHTML = `<pre style="color:#bc8cff">${JSON.stringify(data, null, 2)}</pre>`;

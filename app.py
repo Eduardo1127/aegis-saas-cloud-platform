@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 3.1 - Enterprise Legal & Security Compliance Edition (Live Fix)
+Version: 4.0 - Anti-Abuse Rate Limiter & Tier Quota Protection
 """
 
 import sys
@@ -51,6 +51,22 @@ def token_required(f):
         except Exception:
             return jsonify({"status": "ERROR", "message": "Token inválido o expirado."}), 401
             
+        return f(current_user_id, *args, **kwargs)
+    return decorated
+
+
+def quota_check(f):
+    @wraps(f)
+    def decorated(current_user_id, *args, **kwargs):
+        user_plan = database.get_user_plan(current_user_id)
+        if user_plan == "basic":
+            scans_today = database.count_user_scans_today(current_user_id)
+            if scans_today >= 3:
+                return jsonify({
+                    "status": "ERROR",
+                    "code": "QUOTA_EXCEEDED",
+                    "message": "🔒 Has alcanzado el límite gratuito de 3 escaneos por día. Para realizar auditorías ilimitadas y desatar el Copiloto de IA completo, suscríbete a nuestros planes Professional ($79/mes) o Enterprise ($149/mes)."
+                }), 429
         return f(current_user_id, *args, **kwargs)
     return decorated
 
@@ -122,7 +138,7 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v3.1 (Enterprise Legal Edition)",
+        "service": "Aegis Prime SaaS Cloud Engine v4.0 (Anti-Abuse Protection)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -184,10 +200,11 @@ def login():
     return resp, 200
 
 
-# --- SAAS SECURITY SCANNING API ENDPOINTS ---
+# --- SAAS SECURITY SCANNING API ENDPOINTS (WITH QUOTA PROTECTION) ---
 
 @app.route("/api/v1/scan/red-recon", methods=["POST"])
 @token_required
+@quota_check
 def scan_red_recon(current_user_id):
     data = request.get_json() or {}
     target = data.get("target") or data.get("ip") or "127.0.0.1"
@@ -203,6 +220,7 @@ def scan_red_recon(current_user_id):
 
 @app.route("/api/v1/scan/cloud-cspm", methods=["POST"])
 @token_required
+@quota_check
 def scan_cloud_cspm(current_user_id):
     data = request.get_json() or {}
     target_cloud = data.get("target_cloud") or data.get("target") or "AWS / Docker / K8s"
@@ -218,6 +236,7 @@ def scan_cloud_cspm(current_user_id):
 
 @app.route("/api/v1/ai/copilot-briefing", methods=["POST"])
 @token_required
+@quota_check
 def ai_copilot_briefing(current_user_id):
     data = request.get_json() or {}
     target = data.get("target") or data.get("ip") or "127.0.0.1"
@@ -332,7 +351,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v3.1")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v4.0 (Anti-Abuse Quotas)")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

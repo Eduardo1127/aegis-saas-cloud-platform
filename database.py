@@ -110,6 +110,23 @@ def get_user_scans(user_id):
     conn.close()
     return [{"scan_type": r[0], "target": r[1], "status": r[2], "summary": r[3], "created_at": r[4]} for r in rows]
 
+def count_user_scans_today(user_id):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    today_str = datetime.date.today().isoformat()
+    cursor.execute("SELECT COUNT(*) FROM scan_history WHERE user_id = ? AND date(created_at) = date('now')", (user_id,))
+    count = cursor.fetchone()[0]
+    conn.close()
+    return count
+
+def get_user_plan(user_id):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT plan FROM users WHERE id = ?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row else "basic"
+
 def update_user_plan(user_id, plan):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()

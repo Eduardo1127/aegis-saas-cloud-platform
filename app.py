@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 4.0 - Anti-Abuse Rate Limiter & Tier Quota Protection
+Version: 4.5 - Strict Weekly Quota Protection (Max 3 Scans/Week for Basic Tier)
 """
 
 import sys
@@ -60,12 +60,12 @@ def quota_check(f):
     def decorated(current_user_id, *args, **kwargs):
         user_plan = database.get_user_plan(current_user_id)
         if user_plan == "basic":
-            scans_today = database.count_user_scans_today(current_user_id)
-            if scans_today >= 3:
+            scans_this_week = database.count_user_scans_week(current_user_id)
+            if scans_this_week >= 3:
                 return jsonify({
                     "status": "ERROR",
                     "code": "QUOTA_EXCEEDED",
-                    "message": "🔒 Has alcanzado el límite gratuito de 3 escaneos por día. Para realizar auditorías ilimitadas y desatar el Copiloto de IA completo, suscríbete a nuestros planes Professional ($79/mes) o Enterprise ($149/mes)."
+                    "message": "🔒 Has alcanzado el límite gratuito de 3 escaneos por SEMANA. Para realizar auditorías ilimitadas y desatar el Copiloto de IA completo, suscríbete a nuestros planes Professional ($79/mes) o Enterprise ($149/mes)."
                 }), 429
         return f(current_user_id, *args, **kwargs)
     return decorated
@@ -92,7 +92,7 @@ def terms():
         <p><strong>Última actualización: 2026 — Aegis Prime SaaS / Eduardo Mexquitic Rodriguez (EMR)</strong></p>
         
         <h2>1. Naturaleza de los Servicios</h2>
-        <p>Aegis Prime SaaS proporciona herramientas de auditoría perimetral, monitoreo de seguridad y asistencia mediante Copiloto de Inteligencia Artificial de carácter estrictamente defensivo e informativo.</p>
+        <p>Aegis Prime SaaS proporciona herramientas de auditoría perimetral, monitoreo de seguridad y asistencia mediante Copiloto de Inteligencia Artificial de carácter strictly defensivo e informativo.</p>
         
         <h2>2. Limitación de Responsabilidad</h2>
         <p>Las recomendaciones, análisis y playbooks generados por la plataforma o por el Copiloto de IA son sugerencias técnicas consultivas. La aplicación final de cambios de configuración, bloqueos de IP en cortafuegos o aislamiento de servidores recae única y exclusivamente bajo la decisión y responsabilidad del equipo de TI del Cliente.</p>
@@ -138,7 +138,7 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v4.0 (Anti-Abuse Protection)",
+        "service": "Aegis Prime SaaS Cloud Engine v4.5 (Strict Weekly Quotas)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -200,7 +200,7 @@ def login():
     return resp, 200
 
 
-# --- SAAS SECURITY SCANNING API ENDPOINTS (WITH QUOTA PROTECTION) ---
+# --- SAAS SECURITY SCANNING API ENDPOINTS (WITH STRICT WEEKLY QUOTA) ---
 
 @app.route("/api/v1/scan/red-recon", methods=["POST"])
 @token_required
@@ -351,7 +351,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v4.0 (Anti-Abuse Quotas)")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v4.5 (Strict Weekly Quotas)")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

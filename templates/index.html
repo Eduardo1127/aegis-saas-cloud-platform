@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aegis Prime SaaS Cloud Platform — Eduardo Mexquitic Rodriguez (EMR)</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/saas_style.css') }}?v=4.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/saas_style.css') }}?v=6.0">
     <style>
         :root {
             --bg-dark: #0a0d14;
@@ -15,6 +15,7 @@
             --accent-blue: #58a6ff;
             --accent-purple: #bc8cff;
             --accent-red: #ff7b72;
+            --accent-orange: #ffa657;
             --text-main: #f0f6fc;
             --text-muted: #8b949e;
         }
@@ -42,7 +43,14 @@
         .price-card.featured { border-color: var(--accent-green); }
         .price-val { font-size: 32px; font-weight: 800; color: var(--accent-green); margin: 14px 0; }
 
-        /* BULLETPROOF MOBILE STYLES FOR SMARTPHONES */
+        /* RADAR ANIMATION STYLES */
+        .radar-box { position: relative; width: 160px; height: 160px; border-radius: 50%; border: 2px solid var(--accent-green); background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, rgba(10,13,20,0.9) 80%); margin: auto; overflow: hidden; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+        .radar-sweep { position: absolute; width: 100%; height: 100%; top: 0; left: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg, rgba(0,255,136,0.4) 60deg, transparent 61deg); animation: sweep 3s linear infinite; }
+        .radar-dot { position: absolute; width: 8px; height: 8px; background: var(--accent-red); border-radius: 50%; box-shadow: 0 0 8px var(--accent-red); animation: pulse 1.5s infinite alternate; }
+        @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { from { transform: scale(0.8); opacity: 0.5; } to { transform: scale(1.4); opacity: 1; } }
+
+        /* BULLETPROOF MOBILE STYLES */
         @media (max-width: 768px) {
             body { flex-direction: column !important; }
             .sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid var(--border-color) !important; padding: 12px 16px !important; flex-direction: row !important; flex-wrap: wrap !important; justify-content: space-between !important; align-items: center !important; }
@@ -104,37 +112,49 @@
             <div class="header-bar">
                 <div class="title-header">
                     <h1>Aegis Prime SaaS Control Center</h1>
-                    <p style="color:var(--text-muted); font-size:13px;">Monitoreo Autónomo con IA & Auditoría Cloud</p>
+                    <p style="color:var(--text-muted); font-size:13px;">Monitoreo Autónomo con IA, Splunk HEC & Auditoría Cloud</p>
                 </div>
                 <div class="badge-cloud">⚡ CLOUD LIVE ENGINE</div>
             </div>
 
-            <!-- METRIC CARDS -->
-            <div class="grid-cards">
-                <div class="card">
-                    <div class="card-title">ESTADO DE POSTURA</div>
-                    <div class="card-value">100% PROTEGIDO</div>
+            <!-- LIVE THREAT RADAR & METRICS -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-bottom:30px;">
+                <!-- RADAR WIDGET -->
+                <div class="card" style="text-align:center;">
+                    <div class="card-title">⚡ RADAR DE AMENAZAS EN TIEMPO REAL</div>
+                    <div class="radar-box">
+                        <div class="radar-sweep"></div>
+                        <div class="radar-dot" style="top:30px; left:40px;"></div>
+                        <div class="radar-dot" style="top:110px; left:120px;"></div>
+                    </div>
+                    <p style="color:var(--accent-green); font-size:12px; margin-top:10px; font-weight:bold;">🟢 RASTREO ACTIVO 24/7 EN SEGUNDO PLANO</p>
                 </div>
-                <div class="card">
-                    <div class="card-title">COPILOTO DE IA</div>
-                    <div class="card-value" style="color:var(--accent-blue)">ACTIVO 24/7</div>
-                </div>
-                <div class="card">
-                    <div class="card-title">LICENCIA HWID</div>
-                    <div class="card-value" style="color:var(--accent-purple)">EMR-SAAS-LIVE</div>
+
+                <!-- METRIC CARDS -->
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    <div class="card">
+                        <div class="card-title">ESTADO DE POSTURA</div>
+                        <div class="card-value" id="postureStatusBadge">100% PROTEGIDO</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">INTEGRACIÓN SPLUNK SIEM</div>
+                        <div class="card-value" style="color:var(--accent-blue)">CEF HEC ONLINE</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- ACTION SCAN BUTTONS -->
+            <!-- ACTION SCAN BUTTONS & LIVE ATTACK SIMULATOR -->
             <div class="card" style="margin-bottom:30px;">
-                <h3 style="margin-bottom:16px;">⚡ Ejecutar Análisis en Tiempo Real</h3>
+                <h3 style="margin-bottom:16px;">⚡ Ejecutar Auditorías & Simulaciones de Ataque</h3>
                 <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
                     <input type="text" id="scanTargetIp" class="input-field" placeholder="IP o Dominio Objetivo" value="127.0.0.1" style="margin-bottom:0; flex:1; min-width:180px;">
                     <button onclick="triggerRedRecon()" class="btn-primary" style="flex:1; min-width:140px;">🔴 Red Recon</button>
                     <button onclick="triggerCloudCSPM()" class="btn-primary" style="background:var(--accent-blue); color:#fff; flex:1; min-width:140px;">☁️ Auditar Nube (CSPM)</button>
                     <button onclick="triggerAICopilot()" class="btn-primary" style="background:var(--accent-purple); color:#fff; flex:1; min-width:140px;">🤖 Informe Copiloto IA</button>
+                    <button onclick="triggerLiveAttackSimulation()" class="btn-primary" style="background:linear-gradient(135deg, #ff7b72, #d73a49); color:#fff; flex:1; min-width:160px;">🔥 Simular Ataque Ciber</button>
+                    <button onclick="triggerSplunkForward()" class="btn-primary" style="background:var(--accent-orange); color:#000; flex:1; min-width:140px;">📊 Enviar a Splunk</button>
                 </div>
-                <div id="scanResultsOutput" style="margin-top:20px; background:#0d1117; padding:16px; border-radius:8px; font-family:monospace; max-height:220px; overflow-y:auto; border:1px solid var(--border-color);">
+                <div id="scanResultsOutput" style="margin-top:20px; background:#0d1117; padding:16px; border-radius:8px; font-family:monospace; max-height:240px; overflow-y:auto; border:1px solid var(--border-color);">
                     <p style="color:var(--text-muted)">Selecciona una acción defensiva para ejecutar la API REST...</p>
                 </div>
             </div>
@@ -146,7 +166,7 @@
                     <div class="price-card">
                         <h4>Basic Edition</h4>
                         <div class="price-val">$29 / mo</div>
-                        <p style="font-size:13px; color:var(--text-muted)">50 Escaneos de Vulnerabilidades</p>
+                        <p style="font-size:13px; color:var(--text-muted)">1 Escaneo por Semana</p>
                         <button onclick="triggerCheckout('basic')" class="btn-primary" style="margin-top:16px; width:100%;">Suscribirse</button>
                     </div>
                     <div class="price-card featured">
@@ -158,7 +178,7 @@
                     <div class="price-card">
                         <h4>Enterprise Master SOC</h4>
                         <div class="price-val">$149 / mo</div>
-                        <p style="font-size:13px; color:var(--text-muted)">Escaneos Ilimitados + Copiloto IA</p>
+                        <p style="font-size:13px; color:var(--text-muted)">Ilimitados + Splunk + Copiloto IA</p>
                         <button onclick="triggerCheckout('enterprise')" class="btn-primary" style="margin-top:16px; width:100%;">Suscribirse</button>
                     </div>
                 </div>
@@ -173,10 +193,19 @@
                 </div>
             </div>
 
+            <!-- LEGAL FOOTER LINKS -->
+            <div style="margin-top:30px; text-align:center; color:var(--text-muted); font-size:13px;">
+                <p>© 2026 Aegis Prime SaaS Cloud Platform — Eduardo Mexquitic Rodriguez (EMR)</p>
+                <p style="margin-top:8px;">
+                    <a href="/privacy" style="color:var(--accent-blue); text-decoration:none; margin-right:16px;">🛡️ Política de Privacidad & SOC2</a> | 
+                    <a href="/terms" style="color:var(--accent-green); text-decoration:none; margin-left:16px;">⚖️ Términos de Servicio</a>
+                </p>
+            </div>
+
         </div>
 
     </div>
 
-    <script src="{{ url_for('static', filename='js/saas_app.js') }}?v=4.0"></script>
+    <script src="{{ url_for('static', filename='js/saas_app.js') }}?v=6.0"></script>
 </body>
 </html>

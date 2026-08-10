@@ -1,6 +1,7 @@
 /**
  * AEGIS PRIME SAAS CLOUD PLATFORM - FRONTEND ENGINE
  * Author: Eduardo Mexquitic Rodriguez (EMR)
+ * Version: 6.0 - Threat Radar, Live Attack Simulator & Splunk SIEM Integration
  */
 
 let authToken = localStorage.getItem("saas_jwt_token") || null;
@@ -98,7 +99,11 @@ async function triggerRedRecon() {
         body: JSON.stringify({ target })
     });
     const data = await res.json();
-    outDiv.innerHTML = `<pre style="color:#00ff88">${JSON.stringify(data, null, 2)}</pre>`;
+    if (res.status === 429) {
+        outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
+    } else {
+        outDiv.innerHTML = `<pre style="color:#00ff88">${JSON.stringify(data, null, 2)}</pre>`;
+    }
     loadUserScans();
 }
 
@@ -116,7 +121,11 @@ async function triggerCloudCSPM() {
         body: JSON.stringify({ target_cloud: target })
     });
     const data = await res.json();
-    outDiv.innerHTML = `<pre style="color:#58a6ff">${JSON.stringify(data, null, 2)}</pre>`;
+    if (res.status === 429) {
+        outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
+    } else {
+        outDiv.innerHTML = `<pre style="color:#58a6ff">${JSON.stringify(data, null, 2)}</pre>`;
+    }
     loadUserScans();
 }
 
@@ -131,11 +140,59 @@ async function triggerAICopilot() {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${authToken}`
         },
-        body: JSON.stringify({ ip: target, severity: "CRITICAL" })
+        body: JSON.stringify({ target: target, severity: "CRITICAL" })
     });
     const data = await res.json();
-    outDiv.innerHTML = `<pre style="color:#bc8cff">${JSON.stringify(data, null, 2)}</pre>`;
+    if (res.status === 429) {
+        outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
+    } else {
+        outDiv.innerHTML = `<pre style="color:#bc8cff">${JSON.stringify(data, null, 2)}</pre>`;
+    }
     loadUserScans();
+}
+
+async function triggerLiveAttackSimulation() {
+    const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
+    const outDiv = document.getElementById("scanResultsOutput");
+    const badge = document.getElementById("postureStatusBadge");
+    
+    badge.innerHTML = "🔴 ATAQUE EN CURSO";
+    badge.style.color = "#ff7b72";
+    outDiv.innerHTML = `<p style='color:#ff7b72; font-weight:bold;'>🔥 INICIANDO SIMULACIÓN DE ATAQUE EN TIEMPO REAL HACIA ${target}...</p>`;
+
+    const res = await fetch("/api/v1/simulation/live-attack", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ target })
+    });
+    const data = await res.json();
+    
+    setTimeout(() => {
+        badge.innerHTML = "🟢 MITIGADO POR IA";
+        badge.style.color = "#00ff88";
+        outDiv.innerHTML = `<pre style="color:#ff7b72; font-weight:bold;">${JSON.stringify(data, null, 2)}</pre>`;
+        loadUserScans();
+    }, 1200);
+}
+
+async function triggerSplunkForward() {
+    const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
+    const outDiv = document.getElementById("scanResultsOutput");
+    outDiv.innerHTML = `<p style='color:#ffa657'>📊 Enviando eventos de seguridad CEF / HEC a Splunk SIEM Enterprise...</p>`;
+
+    const res = await fetch("/api/v1/integrations/splunk", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ target })
+    });
+    const data = await res.json();
+    outDiv.innerHTML = `<pre style="color:#ffa657">${JSON.stringify(data, null, 2)}</pre>`;
 }
 
 async function triggerCheckout(plan) {

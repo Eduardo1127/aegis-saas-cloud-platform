@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 6.1 - Splunk SIEM Edition & Threat Radar (Live Trigger)
+Version: 7.0 - Instant Inline Web App Engine (Live Threat Radar & Splunk Edition)
 """
 
 import sys
@@ -72,11 +72,440 @@ def quota_check(f):
     return decorated
 
 
-# --- WEB ROUTES ---
+# --- DIRECT INLINE WEB APP ROUTE (CACHE-PROOF GUARANTEED) ---
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return """<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aegis Prime SaaS Cloud Platform — Eduardo Mexquitic Rodriguez (EMR)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0d14;
+            --card-bg: rgba(22, 27, 34, 0.85);
+            --border-color: rgba(48, 54, 61, 0.8);
+            --accent-green: #00ff88;
+            --accent-blue: #58a6ff;
+            --accent-purple: #bc8cff;
+            --accent-red: #ff7b72;
+            --accent-orange: #ffa657;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { background: var(--bg-dark); color: var(--text-main); font-family: 'Outfit', 'Segoe UI', Arial, sans-serif; min-height: 100vh; overflow-x: hidden; width: 100%; }
+        body { display: flex; }
+        .sidebar { width: 260px; flex-shrink: 0; background: #0d1117; border-right: 1px solid var(--border-color); padding: 24px; display: flex; flex-direction: column; }
+        .brand { font-size: 20px; font-weight: 800; color: var(--accent-green); margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        .nav-item { padding: 12px 16px; border-radius: 8px; color: var(--text-muted); cursor: pointer; margin-bottom: 8px; font-weight: 600; transition: all 0.2s; }
+        .nav-item:hover, .nav-item.active { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); }
+        .main-content { flex: 1; padding: 36px; overflow-y: auto; width: calc(100% - 260px); }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 16px; }
+        .title-header h1 { font-size: 26px; font-weight: 700; word-break: break-word; }
+        .badge-cloud { background: rgba(88, 166, 255, 0.15); color: var(--accent-blue); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); overflow: hidden; }
+        .card-title { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+        .card-value { font-size: 24px; font-weight: 800; color: var(--accent-green); word-break: break-word; }
+        .btn-primary { background: linear-gradient(135deg, #00ff88, #00b862); color: #000; font-weight: 700; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .auth-modal { background: var(--card-bg); border: 1px solid var(--border-color); padding: 30px; border-radius: 14px; max-width: 440px; margin: 40px auto; width: 90%; }
+        .input-field { width: 100%; padding: 12px; background: #0d1117; border: 1px solid var(--border-color); border-radius: 8px; color: #fff; margin-bottom: 16px; font-size: 14px; }
+        .pricing-table { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .price-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; text-align: center; }
+        .price-card.featured { border-color: var(--accent-green); }
+        .price-val { font-size: 32px; font-weight: 800; color: var(--accent-green); margin: 14px 0; }
+
+        /* RADAR ANIMATION STYLES */
+        .radar-box { position: relative; width: 160px; height: 160px; border-radius: 50%; border: 2px solid var(--accent-green); background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, rgba(10,13,20,0.9) 80%); margin: auto; overflow: hidden; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+        .radar-sweep { position: absolute; width: 100%; height: 100%; top: 0; left: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg, rgba(0,255,136,0.4) 60deg, transparent 61deg); animation: sweep 3s linear infinite; }
+        .radar-dot { position: absolute; width: 8px; height: 8px; background: var(--accent-red); border-radius: 50%; box-shadow: 0 0 8px var(--accent-red); animation: pulse 1.5s infinite alternate; }
+        @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { from { transform: scale(0.8); opacity: 0.5; } to { transform: scale(1.4); opacity: 1; } }
+
+        /* MOBILE RESPONSIVE OVERRIDES */
+        @media (max-width: 768px) {
+            body { flex-direction: column !important; }
+            .sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid var(--border-color) !important; padding: 12px 16px !important; flex-direction: row !important; flex-wrap: wrap !important; justify-content: space-between !important; align-items: center !important; }
+            .brand { margin-bottom: 0 !important; font-size: 16px !important; }
+            .nav-item { display: inline-block !important; margin-bottom: 0 !important; margin-right: 4px !important; padding: 6px 10px !important; font-size: 12px !important; }
+            .main-content { padding: 16px !important; width: 100% !important; }
+            .title-header h1 { font-size: 18px !important; }
+            .grid-cards { grid-template-columns: 1fr !important; }
+            .pricing-table { grid-template-columns: 1fr !important; }
+            .card { padding: 16px !important; }
+            .btn-primary { width: 100% !important; margin-top: 8px !important; }
+            .input-field { width: 100% !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebarNav" style="display:none;">
+        <div class="brand">🛡️ AEGIS SAAS</div>
+        <div style="display:flex; flex-wrap:wrap; gap:4px;">
+            <div class="nav-item active">📊 Dashboard</div>
+            <div class="nav-item">🔴 Red Recon</div>
+            <div class="nav-item">☁️ CSPM</div>
+            <div class="nav-item">🤖 Copiloto IA</div>
+            <div class="nav-item">💳 Pagos</div>
+        </div>
+        <div style="margin-left:auto">
+            <button onclick="handleLogout()" class="btn-primary" style="background:#ff7b72; color:#fff; padding:6px 12px; font-size:12px;">Salir</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <div id="authContainer">
+            <div class="auth-modal">
+                <h2 style="margin-bottom:8px; color:var(--accent-green)">🛡️ AEGIS PRIME SAAS</h2>
+                <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Plataforma Cloud de Ciberseguridad Defensiva con IA</p>
+                
+                <input type="email" id="loginEmail" class="input-field" placeholder="Correo Electrónico" value="cliente@empresa.com">
+                <input type="password" id="loginPassword" class="input-field" placeholder="Contraseña" value="Password123!">
+                <input type="text" id="loginCompany" class="input-field" placeholder="Nombre de tu Empresa (Opcional)" value="Empresa Demo S.A.">
+                
+                <div style="display:flex; gap:10px;">
+                    <button onclick="handleLogin()" class="btn-primary" style="flex:1;">Iniciar Sesión</button>
+                    <button onclick="handleRegister()" class="btn-primary" style="flex:1; background:var(--accent-blue); color:#fff;">Registrarse</button>
+                </div>
+                <div id="authMsg" style="margin-top:16px; font-size:13px;"></div>
+            </div>
+        </div>
+
+        <div id="dashboardContainer" style="display:none;">
+
+            <div class="header-bar">
+                <div class="title-header">
+                    <h1>Aegis Prime SaaS Control Center</h1>
+                    <p style="color:var(--text-muted); font-size:13px;">Monitoreo Autónomo con IA, Splunk HEC & Auditoría Cloud</p>
+                </div>
+                <div class="badge-cloud">⚡ CLOUD LIVE ENGINE v7.0</div>
+            </div>
+
+            <!-- LIVE THREAT RADAR & METRICS -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-bottom:30px;">
+                <div class="card" style="text-align:center;">
+                    <div class="card-title">⚡ RADAR DE AMENAZAS EN TIEMPO REAL</div>
+                    <div class="radar-box">
+                        <div class="radar-sweep"></div>
+                        <div class="radar-dot" style="top:30px; left:40px;"></div>
+                        <div class="radar-dot" style="top:110px; left:120px;"></div>
+                    </div>
+                    <p style="color:var(--accent-green); font-size:12px; margin-top:10px; font-weight:bold;">🟢 RASTREO ACTIVO 24/7 EN SEGUNDO PLANO</p>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    <div class="card">
+                        <div class="card-title">ESTADO DE POSTURA</div>
+                        <div class="card-value" id="postureStatusBadge">100% PROTEGIDO</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">INTEGRACIÓN SPLUNK SIEM</div>
+                        <div class="card-value" style="color:var(--accent-blue)">CEF HEC ONLINE</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTION SCAN BUTTONS & LIVE ATTACK SIMULATOR -->
+            <div class="card" style="margin-bottom:30px;">
+                <h3 style="margin-bottom:16px;">⚡ Ejecutar Auditorías & Simulaciones de Ataque</h3>
+                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <input type="text" id="scanTargetIp" class="input-field" placeholder="IP o Dominio Objetivo" value="127.0.0.1" style="margin-bottom:0; flex:1; min-width:180px;">
+                    <button onclick="triggerRedRecon()" class="btn-primary" style="flex:1; min-width:140px;">🔴 Red Recon</button>
+                    <button onclick="triggerCloudCSPM()" class="btn-primary" style="background:var(--accent-blue); color:#fff; flex:1; min-width:140px;">☁️ Auditar Nube (CSPM)</button>
+                    <button onclick="triggerAICopilot()" class="btn-primary" style="background:var(--accent-purple); color:#fff; flex:1; min-width:140px;">🤖 Informe Copiloto IA</button>
+                    <button onclick="triggerLiveAttackSimulation()" class="btn-primary" style="background:linear-gradient(135deg, #ff7b72, #d73a49); color:#fff; flex:1; min-width:160px;">🔥 Simular Ataque Ciber</button>
+                    <button onclick="triggerSplunkForward()" class="btn-primary" style="background:var(--accent-orange); color:#000; flex:1; min-width:140px;">📊 Enviar a Splunk</button>
+                </div>
+                <div id="scanResultsOutput" style="margin-top:20px; background:#0d1117; padding:16px; border-radius:8px; font-family:monospace; max-height:240px; overflow-y:auto; border:1px solid var(--border-color);">
+                    <p style="color:var(--text-muted)">Selecciona una acción defensiva para ejecutar la API REST...</p>
+                </div>
+            </div>
+
+            <!-- PRICING TIERS & STRIPE CHECKOUT -->
+            <div class="card" style="margin-bottom:30px;">
+                <h3>💳 Suscripciones Comerciales SaaS (Stripe Integration)</h3>
+                <div class="pricing-table">
+                    <div class="price-card">
+                        <h4>Basic Edition</h4>
+                        <div class="price-val">$29 / mo</div>
+                        <p style="font-size:13px; color:var(--text-muted)">1 Escaneo por Semana</p>
+                        <button onclick="triggerCheckout('basic')" class="btn-primary" style="margin-top:16px; width:100%;">Suscribirse</button>
+                    </div>
+                    <div class="price-card featured">
+                        <h4 style="color:var(--accent-green)">Professional Edition</h4>
+                        <div class="price-val">$79 / mo</div>
+                        <p style="font-size:13px; color:var(--text-muted)">500 Escaneos + Bot SOAR Telegram</p>
+                        <button onclick="triggerCheckout('pro')" class="btn-primary" style="margin-top:16px; width:100%;">Suscribirse</button>
+                    </div>
+                    <div class="price-card">
+                        <h4>Enterprise Master SOC</h4>
+                        <div class="price-val">$149 / mo</div>
+                        <p style="font-size:13px; color:var(--text-muted)">Ilimitados + Splunk + Copiloto IA</p>
+                        <button onclick="triggerCheckout('enterprise')" class="btn-primary" style="margin-top:16px; width:100%;">Suscribirse</button>
+                    </div>
+                </div>
+                <div id="checkoutOutput" style="margin-top:16px;"></div>
+            </div>
+
+            <!-- SCAN HISTORY TABLE -->
+            <div class="card">
+                <h3>📜 Historial Reciente de Auditorías API</h3>
+                <div id="historyList" style="margin-top:16px;">
+                    <p style="color:var(--text-muted)">Cargando historial...</p>
+                </div>
+            </div>
+
+            <!-- LEGAL FOOTER LINKS -->
+            <div style="margin-top:30px; text-align:center; color:var(--text-muted); font-size:13px;">
+                <p>© 2026 Aegis Prime SaaS Cloud Platform — Eduardo Mexquitic Rodriguez (EMR)</p>
+                <p style="margin-top:8px;">
+                    <a href="/privacy" style="color:var(--accent-blue); text-decoration:none; margin-right:16px;">🛡️ Política de Privacidad & SOC2</a> | 
+                    <a href="/terms" style="color:var(--accent-green); text-decoration:none; margin-left:16px;">⚖️ Términos de Servicio</a>
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem("saas_jwt_token") || null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (authToken) {
+                showDashboard();
+            } else {
+                showAuth();
+            }
+        });
+
+        function showAuth() {
+            document.getElementById("authContainer").style.display = "block";
+            document.getElementById("dashboardContainer").style.display = "none";
+            const sidebar = document.getElementById("sidebarNav");
+            if (sidebar) sidebar.style.display = "none";
+        }
+
+        function showDashboard() {
+            document.getElementById("authContainer").style.display = "none";
+            document.getElementById("dashboardContainer").style.display = "block";
+            const sidebar = document.getElementById("sidebarNav");
+            if (sidebar) sidebar.style.display = "flex";
+            loadUserScans();
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+            const msgDiv = document.getElementById("authMsg");
+
+            try {
+                const res = await fetch("/api/v1/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.status === "SUCCESS") {
+                    authToken = data.token;
+                    localStorage.setItem("saas_jwt_token", authToken);
+                    msgDiv.innerHTML = `<span style="color:#00ff88">✅ Login Exitoso! Bienvenido ${data.user.email}</span>`;
+                    setTimeout(showDashboard, 800);
+                } else {
+                    msgDiv.innerHTML = `<span style="color:#ff7b72">❌ ${data.message}</span>`;
+                }
+            } catch (e) {
+                msgDiv.innerHTML = `<span style="color:#ff7b72">❌ Error de conexión al servidor.</span>`;
+            }
+        }
+
+        async function handleRegister() {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+            const company = document.getElementById("loginCompany").value;
+            const msgDiv = document.getElementById("authMsg");
+
+            try {
+                const res = await fetch("/api/v1/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password, company })
+                });
+                const data = await res.json();
+
+                if (data.status === "SUCCESS") {
+                    msgDiv.innerHTML = `<span style="color:#00ff88">✅ Cuenta creada! Clave Licencia: ${data.hwid_license}</span>`;
+                } else {
+                    msgDiv.innerHTML = `<span style="color:#ff7b72">❌ ${data.message}</span>`;
+                }
+            } catch (e) {
+                msgDiv.innerHTML = `<span style="color:#ff7b72">❌ Error al registrar cuenta.</span>`;
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("saas_jwt_token");
+            authToken = null;
+            showAuth();
+        }
+
+        async function triggerRedRecon() {
+            const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
+            const outDiv = document.getElementById("scanResultsOutput");
+            outDiv.innerHTML = `<p style='color:#00ff88'>⏳ Ejecutando escaneo Red Recon para ${target}...</p>`;
+
+            const res = await fetch("/api/v1/scan/red-recon", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ target })
+            });
+            const data = await res.json();
+            if (res.status === 429) {
+                outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
+            } else {
+                outDiv.innerHTML = `<pre style="color:#00ff88">${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            loadUserScans();
+        }
+
+        async function triggerCloudCSPM() {
+            const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
+            const outDiv = document.getElementById("scanResultsOutput");
+            outDiv.innerHTML = `<p style='color:#58a6ff'>☁️ Auditando postura de seguridad Nube/Docker para ${target}...</p>`;
+
+            const res = await fetch("/api/v1/scan/cloud-cspm", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ target_cloud: target })
+            });
+            const data = await res.json();
+            if (res.status === 429) {
+                outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
+            } else {
+                outDiv.innerHTML = `<pre style="color:#58a6ff">${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            loadUserScans();
+        }
+
+        async function triggerAICopilot() {
+            const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
+            const outDiv = document.getElementById("scanResultsOutput");
+            outDiv.innerHTML = `<p style='color:#bc8cff'>🤖 Generando informe ejecutivo de IA para ${target}...</p>`;
+
+            const res = await fetch("/api/v1/ai/copilot-briefing", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ target: target, severity: "CRITICAL" })
+            });
+            const data = await res.json();
+            if (res.status === 429) {
+                outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
+            } else {
+                outDiv.innerHTML = `<pre style="color:#bc8cff">${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            loadUserScans();
+        }
+
+        async function triggerLiveAttackSimulation() {
+            const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
+            const outDiv = document.getElementById("scanResultsOutput");
+            const badge = document.getElementById("postureStatusBadge");
+            
+            badge.innerHTML = "🔴 ATAQUE EN CURSO";
+            badge.style.color = "#ff7b72";
+            outDiv.innerHTML = `<p style='color:#ff7b72; font-weight:bold;'>🔥 INICIANDO SIMULACIÓN DE ATAQUE EN TIEMPO REAL HACIA ${target}...</p>`;
+
+            const res = await fetch("/api/v1/simulation/live-attack", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ target })
+            });
+            const data = await res.json();
+            
+            setTimeout(() => {
+                badge.innerHTML = "🟢 MITIGADO POR IA";
+                badge.style.color = "#00ff88";
+                outDiv.innerHTML = `<pre style="color:#ff7b72; font-weight:bold;">${JSON.stringify(data, null, 2)}</pre>`;
+                loadUserScans();
+            }, 1200);
+        }
+
+        async function triggerSplunkForward() {
+            const target = document.getElementById("scanTargetIp").value || "127.0.0.1";
+            const outDiv = document.getElementById("scanResultsOutput");
+            outDiv.innerHTML = `<p style='color:#ffa657'>📊 Enviando eventos de seguridad CEF / HEC a Splunk SIEM Enterprise...</p>`;
+
+            const res = await fetch("/api/v1/integrations/splunk", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ target })
+            });
+            const data = await res.json();
+            outDiv.innerHTML = `<pre style="color:#ffa657">${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function triggerCheckout(plan) {
+            const outDiv = document.getElementById("checkoutOutput");
+            outDiv.innerHTML = "<p style='color:#58a6ff'>💳 Generando sesión de cobro con tarjeta en Stripe Checkout...</p>";
+
+            const res = await fetch("/api/v1/subscriptions/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ plan })
+            });
+            const data = await res.json();
+            if (data.status === "SUCCESS" && data.checkout_url) {
+                outDiv.innerHTML = `<p style="color:#00ff88; font-weight:bold;">💳 <a href="${data.checkout_url}" target="_blank" style="color:#00ff88; text-decoration:underline;">Haz clic aquí para ingresar tu Tarjeta de Crédito en Stripe Checkout</a></p>`;
+                window.open(data.checkout_url, '_blank');
+            }
+        }
+
+        async function loadUserScans() {
+            const listDiv = document.getElementById("historyList");
+            try {
+                const res = await fetch("/api/v1/user/scans", {
+                    headers: { "Authorization": `Bearer ${authToken}` }
+                });
+                const data = await res.json();
+                if (data.status === "SUCCESS") {
+                    listDiv.innerHTML = data.scans.map(s => `
+                        <div style="padding:10px; border-bottom:1px solid #30363d;">
+                            <strong>[${s.scan_type}]</strong> ${s.target} - <span style="color:#00ff88">${s.summary}</span>
+                            <br><small style="color:#8b949e">${s.created_at}</small>
+                        </div>
+                    `).join("");
+                }
+            } catch (e) {}
+        }
+    </script>
+</body>
+</html>"""
 
 @app.route("/terms")
 def terms():
@@ -135,7 +564,7 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v6.1 (Splunk Edition Live)",
+        "service": "Aegis Prime SaaS Cloud Engine v7.0 (Cache-Proof Inline Web App)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -298,7 +727,7 @@ def splunk_siem_forwarder(current_user_id):
         "event_type": "AEGIS_SECURITY_AUDIT",
         "source": "Aegis Prime SaaS Cloud Engine",
         "target": target,
-        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|6.1|100|Security Audit Event|CRITICAL",
+        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|7.0|100|Security Audit Event|CRITICAL",
         "splunk_hec_format": {
             "time": time.time(),
             "host": target,
@@ -419,7 +848,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v6.1")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v7.0 (Cache-Proof Inline Engine)")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

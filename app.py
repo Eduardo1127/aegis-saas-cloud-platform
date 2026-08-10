@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 6.0 - Splunk SIEM Integration & Live Threat Radar Edition
+Version: 6.1 - Splunk SIEM Edition & Threat Radar (Live Trigger)
 """
 
 import sys
@@ -135,7 +135,7 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v6.0 (Splunk SIEM Edition)",
+        "service": "Aegis Prime SaaS Cloud Engine v6.1 (Splunk Edition Live)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -298,7 +298,7 @@ def splunk_siem_forwarder(current_user_id):
         "event_type": "AEGIS_SECURITY_AUDIT",
         "source": "Aegis Prime SaaS Cloud Engine",
         "target": target,
-        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|6.0|100|Security Audit Event|CRITICAL",
+        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|6.1|100|Security Audit Event|CRITICAL",
         "splunk_hec_format": {
             "time": time.time(),
             "host": target,
@@ -419,7 +419,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v6.0 (Splunk Edition)")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v6.1")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

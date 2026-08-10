@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 8.0 - Bulletproof Front-to-Back Live Attack Engine
+Version: 9.0 - Auto-Session Refresh & Token Expiry Handler
 """
 
 import sys
@@ -50,7 +50,7 @@ def token_required(f):
             data = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
             current_user_id = data["user_id"]
         except Exception:
-            return jsonify({"status": "ERROR", "message": "Token inválido o expirado."}), 401
+            return jsonify({"status": "ERROR", "message": "Tu sesión ha expirado por seguridad. Haz clic en 'Salir' e Inicia Sesión de nuevo para refrescar tu token."}), 401
             
         return f(current_user_id, *args, **kwargs)
     return decorated
@@ -72,7 +72,7 @@ def quota_check(f):
     return decorated
 
 
-# --- BULLETPROOF INLINE WEB APP ROUTE ---
+# --- BULLETPROOF INLINE WEB APP ROUTE WITH AUTO-EXpiry HANDLING ---
 
 @app.route("/")
 def index():
@@ -155,7 +155,7 @@ def index():
             <div class="nav-item">💳 Pagos</div>
         </div>
         <div style="margin-left:auto">
-            <button onclick="handleLogout()" class="btn-primary" style="background:#ff7b72; color:#fff; padding:6px 12px; font-size:12px;">Salir</button>
+            <button onclick="handleLogout()" class="btn-primary" style="background:#ff7b72; color:#fff; padding:6px 12px; font-size:12px;">Salir / Reingresar</button>
         </div>
     </div>
 
@@ -185,7 +185,7 @@ def index():
                     <h1>Aegis Prime SaaS Control Center</h1>
                     <p style="color:var(--text-muted); font-size:13px;">Monitoreo Autónomo con IA, Splunk HEC & Auditoría Cloud</p>
                 </div>
-                <div class="badge-cloud">⚡ CLOUD LIVE ENGINE v8.0</div>
+                <div class="badge-cloud">⚡ CLOUD LIVE ENGINE v9.0</div>
             </div>
 
             <!-- LIVE THREAT RADAR & METRICS -->
@@ -301,6 +301,15 @@ def index():
             loadUserScans();
         }
 
+        function handle401(data) {
+            if (data && data.status === "ERROR" && data.message && data.message.includes("expirado")) {
+                alert("🔑 Tu sesión de prueba ha expirado. Vamos a renovar tu token de autenticación...");
+                handleLogout();
+                return true;
+            }
+            return false;
+        }
+
         async function handleLogin() {
             const email = document.getElementById("loginEmail").value;
             const password = document.getElementById("loginPassword").value;
@@ -317,8 +326,8 @@ def index():
                 if (data.status === "SUCCESS") {
                     authToken = data.token;
                     localStorage.setItem("saas_jwt_token", authToken);
-                    msgDiv.innerHTML = `<span style="color:#00ff88">✅ Login Exitoso! Bienvenido ${data.user.email}</span>`;
-                    setTimeout(showDashboard, 800);
+                    msgDiv.innerHTML = `<span style="color:#00ff88">✅ Sesión iniciada con éxito. Token renovado!</span>`;
+                    setTimeout(showDashboard, 600);
                 } else {
                     msgDiv.innerHTML = `<span style="color:#ff7b72">❌ ${data.message}</span>`;
                 }
@@ -372,6 +381,7 @@ def index():
                     body: JSON.stringify({ target })
                 });
                 const data = await res.json();
+                if (handle401(data)) return;
                 if (res.status === 429) {
                     outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
                 } else {
@@ -398,6 +408,7 @@ def index():
                     body: JSON.stringify({ target_cloud: target })
                 });
                 const data = await res.json();
+                if (handle401(data)) return;
                 if (res.status === 429) {
                     outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
                 } else {
@@ -424,6 +435,7 @@ def index():
                     body: JSON.stringify({ target: target, severity: "CRITICAL" })
                 });
                 const data = await res.json();
+                if (handle401(data)) return;
                 if (res.status === 429) {
                     outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
                 } else {
@@ -454,6 +466,7 @@ def index():
                     body: JSON.stringify({ target })
                 });
                 const data = await res.json();
+                if (handle401(data)) return;
                 
                 setTimeout(() => {
                     badge.innerHTML = "🟢 MITIGADO POR IA";
@@ -485,6 +498,7 @@ def index():
                     body: JSON.stringify({ target })
                 });
                 const data = await res.json();
+                if (handle401(data)) return;
                 outDiv.innerHTML = `<pre style="color:#ffa657">${JSON.stringify(data, null, 2)}</pre>`;
             } catch(e) {
                 outDiv.innerHTML = `<p style="color:#ff7b72">❌ Error al enviar a Splunk.</p>`;
@@ -505,6 +519,7 @@ def index():
                     body: JSON.stringify({ plan })
                 });
                 const data = await res.json();
+                if (handle401(data)) return;
                 if (data.status === "SUCCESS" && data.checkout_url) {
                     outDiv.innerHTML = `<p style="color:#00ff88; font-weight:bold;">💳 <a href="${data.checkout_url}" target="_blank" style="color:#00ff88; text-decoration:underline;">Haz clic aquí para ingresar tu Tarjeta de Crédito en Stripe Checkout</a></p>`;
                     window.open(data.checkout_url, '_blank');
@@ -592,7 +607,7 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v8.0 (Bulletproof Live Attack Engine)",
+        "service": "Aegis Prime SaaS Cloud Engine v9.0 (Auto-Token Refresh Engine)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -755,7 +770,7 @@ def splunk_siem_forwarder(current_user_id):
         "event_type": "AEGIS_SECURITY_AUDIT",
         "source": "Aegis Prime SaaS Cloud Engine",
         "target": target,
-        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|8.0|100|Security Audit Event|CRITICAL",
+        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|9.0|100|Security Audit Event|CRITICAL",
         "splunk_hec_format": {
             "time": time.time(),
             "host": target,
@@ -876,7 +891,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v8.0 (Bulletproof Engine)")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v9.0 (Auto-Token Refresh)")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

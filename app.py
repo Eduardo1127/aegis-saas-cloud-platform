@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 2.6 - License Management System
+Version: 3.0 - Enterprise Legal & Security Compliance Edition
 """
 
 import sys
@@ -61,11 +61,62 @@ def token_required(f):
 def index():
     return render_template("index.html")
 
+@app.route("/terms")
+def terms():
+    return """
+    <html>
+    <head><title>Términos de Servicio — Aegis Prime SaaS</title>
+    <style>body{font-family:sans-serif; background:#0a0d14; color:#f0f6fc; padding:40px; max-width:800px; margin:auto; line-height:1.6;} h1{color:#00ff88;} h2{color:#58a6ff; margin-top:24px;}</style>
+    </head>
+    <body>
+        <h1>⚖️ Términos de Servicio y Limitación de Responsabilidad</h1>
+        <p><strong>Última actualización: 2026 — Aegis Prime SaaS / Eduardo Mexquitic Rodriguez (EMR)</strong></p>
+        
+        <h2>1. Naturaleza de los Servicios</h2>
+        <p>Aegis Prime SaaS proporciona herramientas de auditoría perimetral, monitoreo de seguridad y asistencia mediante Copiloto de Inteligencia Artificial de carácter estrictamente defensivo e informativo.</p>
+        
+        <h2>2. Limitación de Responsabilidad</h2>
+        <p>Las recomendaciones, análisis y playbooks generados por la plataforma o por el Copiloto de IA son sugerencias técnicas consultivas. La aplicación final de cambios de configuración, bloqueos de IP en cortafuegos o aislamiento de servidores recae única y exclusivamente bajo la decisión y responsabilidad del equipo de TI del Cliente.</p>
+        <p>En ningún caso Aegis Prime SaaS o su fundador serán responsables por interrupciones de servicio no planificadas o pérdida de datos derivadas de la ejecución directa de recomendaciones por parte del cliente.</p>
+        
+        <h2>3. Límite Monetario de Indemnización</h2>
+        <p>La responsabilidad financiera total del Proveedor frente al Cliente para cualquier reclamo no excederá la cantidad acumulada efectivamente pagada por el Cliente por el servicio en el último mes de suscripción.</p>
+        
+        <p><a href="/" style="color:#00ff88;">← Volver a la Plataforma Aegis SaaS</a></p>
+    </body>
+    </html>
+    """
+
+@app.route("/privacy")
+def privacy():
+    return """
+    <html>
+    <head><title>Política de Privacidad y Cumplimiento — Aegis Prime SaaS</title>
+    <style>body{font-family:sans-serif; background:#0a0d14; color:#f0f6fc; padding:40px; max-width:800px; margin:auto; line-height:1.6;} h1{color:#00ff88;} h2{color:#58a6ff; margin-top:24px;}</style>
+    </head>
+    <body>
+        <h1>🛡️ Política de Privacidad y Protección de Datos (Vendor Assessment)</h1>
+        <p><strong>Aegis Prime SaaS — Cumplimiento SOC2 / GDPR / ISO 27001 Alignment</strong></p>
+        
+        <h2>1. Cifrado y Custodia de Información</h2>
+        <p>Toda la información capturada durante los análisis se cifra en tránsito utilizando protocolos TLS 1.3 (HTTPS) y en reposo mediante algoritmos AES-256. El acceso a los datos está estrictamente aislado por usuario mediante tokens cryptográficos JWT.</p>
+        
+        <h2>2. Propiedad de los Datos</h2>
+        <p>El Cliente conserva el 100% de la propiedad de la información, informes y datos de su infraestructura auditados por la plataforma. Aegis Prime SaaS no vende ni comparte datos con terceros.</p>
+        
+        <h2>3. Retención y Eliminación de Registros</h2>
+        <p>Los registros de escaneos se conservan por un período máximo de 30 días para análisis histórico del cliente y pueden ser eliminados a solicitud expresa del usuario.</p>
+        
+        <p><a href="/" style="color:#00ff88;">← Volver a la Plataforma Aegis SaaS</a></p>
+    </body>
+    </html>
+    """
+
 @app.route("/api/v1/health", methods=["GET"])
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v2.6 (License Manager)",
+        "service": "Aegis Prime SaaS Cloud Engine v3.0 (Enterprise Legal Edition)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -275,7 +326,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v2.6 (License Manager)")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v3.0 (Enterprise Compliance)")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

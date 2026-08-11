@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 9.0 - Auto-Session Refresh & Token Expiry Handler
+Version: 10.0 - Admin VIP Unlimited Quota Bypass
 """
 
 import sys
@@ -60,6 +60,10 @@ def quota_check(f):
     @wraps(f)
     def decorated(current_user_id, *args, **kwargs):
         user_plan = database.get_user_plan(current_user_id)
+        # ADMIN / ENTERPRISE / PRO BYPASS: UNLIMITED SCANS!
+        if user_plan in ["enterprise", "pro", "admin", "vip"]:
+            return f(current_user_id, *args, **kwargs)
+            
         if user_plan == "basic":
             scans_this_week = database.count_user_scans_week(current_user_id)
             if scans_this_week >= 1:
@@ -72,7 +76,7 @@ def quota_check(f):
     return decorated
 
 
-# --- BULLETPROOF INLINE WEB APP ROUTE WITH AUTO-EXpiry HANDLING ---
+# --- BULLETPROOF INLINE WEB APP ROUTE WITH ADMIN AUTO-RECOGNITION ---
 
 @app.route("/")
 def index():
@@ -166,13 +170,13 @@ def index():
                 <h2 style="margin-bottom:8px; color:var(--accent-green)">🛡️ AEGIS PRIME SAAS</h2>
                 <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Plataforma Cloud de Ciberseguridad Defensiva con IA</p>
                 
-                <input type="email" id="loginEmail" class="input-field" placeholder="Correo Electrónico" value="cliente@empresa.com">
-                <input type="password" id="loginPassword" class="input-field" placeholder="Contraseña" value="Password123!">
-                <input type="text" id="loginCompany" class="input-field" placeholder="Nombre de tu Empresa (Opcional)" value="Empresa Demo S.A.">
+                <input type="email" id="loginEmail" class="input-field" placeholder="Correo Electrónico" value="admin@aegis.com">
+                <input type="password" id="loginPassword" class="input-field" placeholder="Contraseña" value="AdminMaster123!">
+                <input type="text" id="loginCompany" class="input-field" placeholder="Nombre de tu Empresa (Opcional)" value="EMR Security HQ">
                 
                 <div style="display:flex; gap:10px;">
-                    <button onclick="handleLogin()" class="btn-primary" style="flex:1;">Iniciar Sesión</button>
-                    <button onclick="handleRegister()" class="btn-primary" style="flex:1; background:var(--accent-blue); color:#fff;">Registrarse</button>
+                    <button onclick="handleLogin()" class="btn-primary" style="flex:1;">Iniciar Sesión Admin</button>
+                    <button onclick="handleRegisterAdmin()" class="btn-primary" style="flex:1; background:var(--accent-purple); color:#fff;">Crear Cuenta Admin</button>
                 </div>
                 <div id="authMsg" style="margin-top:16px; font-size:13px;"></div>
             </div>
@@ -185,7 +189,7 @@ def index():
                     <h1>Aegis Prime SaaS Control Center</h1>
                     <p style="color:var(--text-muted); font-size:13px;">Monitoreo Autónomo con IA, Splunk HEC & Auditoría Cloud</p>
                 </div>
-                <div class="badge-cloud">⚡ CLOUD LIVE ENGINE v9.0</div>
+                <div class="badge-cloud">⚡ CLOUD ENGINE v10.0 (ADMIN UNLIMITED)</div>
             </div>
 
             <!-- LIVE THREAT RADAR & METRICS -->
@@ -303,7 +307,7 @@ def index():
 
         function handle401(data) {
             if (data && data.status === "ERROR" && data.message && data.message.includes("expirado")) {
-                alert("🔑 Tu sesión de prueba ha expirado. Vamos a renovar tu token de autenticación...");
+                alert("🔑 Tu sesión ha expirado. Vamos a renovar tu token de autenticación...");
                 handleLogout();
                 return true;
             }
@@ -326,7 +330,7 @@ def index():
                 if (data.status === "SUCCESS") {
                     authToken = data.token;
                     localStorage.setItem("saas_jwt_token", authToken);
-                    msgDiv.innerHTML = `<span style="color:#00ff88">✅ Sesión iniciada con éxito. Token renovado!</span>`;
+                    msgDiv.innerHTML = `<span style="color:#00ff88">✅ Sesión iniciada como ${data.user.email} (${data.user.plan.toUpperCase()})</span>`;
                     setTimeout(showDashboard, 600);
                 } else {
                     msgDiv.innerHTML = `<span style="color:#ff7b72">❌ ${data.message}</span>`;
@@ -336,14 +340,14 @@ def index():
             }
         }
 
-        async function handleRegister() {
+        async function handleRegisterAdmin() {
             const email = document.getElementById("loginEmail").value;
             const password = document.getElementById("loginPassword").value;
             const company = document.getElementById("loginCompany").value;
             const msgDiv = document.getElementById("authMsg");
 
             try {
-                const res = await fetch("/api/v1/auth/register", {
+                const res = await fetch("/api/v1/auth/register-admin", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password, company })
@@ -351,12 +355,12 @@ def index():
                 const data = await res.json();
 
                 if (data.status === "SUCCESS") {
-                    msgDiv.innerHTML = `<span style="color:#00ff88">✅ Cuenta creada! Clave Licencia: ${data.hwid_license}</span>`;
+                    msgDiv.innerHTML = `<span style="color:#00ff88">👑 Cuenta Admin Creada con Éxito! Plan: ENTERPRISE ILIMITADO. Ahora haz clic en Iniciar Sesión.</span>`;
                 } else {
                     msgDiv.innerHTML = `<span style="color:#ff7b72">❌ ${data.message}</span>`;
                 }
             } catch (e) {
-                msgDiv.innerHTML = `<span style="color:#ff7b72">❌ Error al registrar cuenta.</span>`;
+                msgDiv.innerHTML = `<span style="color:#ff7b72">❌ Error al registrar cuenta Admin.</span>`;
             }
         }
 
@@ -607,7 +611,7 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v9.0 (Auto-Token Refresh Engine)",
+        "service": "Aegis Prime SaaS Cloud Engine v10.0 (Admin Unlimited Edition)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -635,6 +639,40 @@ def register():
         "user_id": user_or_err,
         "hwid_license": hwid_key
     }), 201
+
+
+@app.route("/api/v1/auth/register-admin", methods=["POST"])
+def register_admin():
+    data = request.get_json() or {}
+    email = data.get("email") or "admin@aegis.com"
+    password = data.get("password") or "AdminMaster123!"
+    company = data.get("company", "EMR Security HQ")
+    
+    # Register user with Enterprise plan directly
+    conn = database.sqlite3.connect(database.DB_PATH)
+    cursor = conn.cursor()
+    pwd_hash = database.generate_password_hash(password)
+    hwid_key = f"EMR-ADMIN-MASTER-KEY"
+    try:
+        cursor.execute("INSERT INTO users (email, password_hash, company, role, plan, hwid_license) VALUES (?, ?, ?, 'admin', 'enterprise', ?)",
+                       (email, pwd_hash, company, hwid_key))
+        conn.commit()
+        user_id = cursor.lastrowid
+        conn.close()
+        return jsonify({
+            "status": "SUCCESS",
+            "message": "👑 Cuenta de Administrador Master creada con éxito. Plan: ENTERPRISE ILIMITADO.",
+            "user_id": user_id,
+            "hwid_license": hwid_key
+        }), 201
+    except database.sqlite3.IntegrityError:
+        cursor.execute("UPDATE users SET role = 'admin', plan = 'enterprise' WHERE email = ?", (email,))
+        conn.commit()
+        conn.close()
+        return jsonify({
+            "status": "SUCCESS",
+            "message": f"👑 Cuenta de Administrador '{email}' elevada a Plan ENTERPRISE ILIMITADO exitosamente."
+        }), 200
 
 
 @app.route("/api/v1/auth/login", methods=["POST"])
@@ -770,7 +808,7 @@ def splunk_siem_forwarder(current_user_id):
         "event_type": "AEGIS_SECURITY_AUDIT",
         "source": "Aegis Prime SaaS Cloud Engine",
         "target": target,
-        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|9.0|100|Security Audit Event|CRITICAL",
+        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|10.0|100|Security Audit Event|CRITICAL",
         "splunk_hec_format": {
             "time": time.time(),
             "host": target,
@@ -891,7 +929,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v9.0 (Auto-Token Refresh)")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v10.0 (Admin Unlimited)")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

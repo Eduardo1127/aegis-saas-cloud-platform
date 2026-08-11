@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 10.0 - Admin VIP Unlimited Quota Bypass
+Version: 10.5 - Quota Enforcement on Live Attack Simulator
 """
 
 import sys
@@ -70,7 +70,7 @@ def quota_check(f):
                 return jsonify({
                     "status": "ERROR",
                     "code": "QUOTA_EXCEEDED",
-                    "message": "🔒 Has alcanzado tu prueba gratuita de 1 escaneo por SEMANA. Para realizar auditorías ilimitadas y desatar el Copiloto de IA completo, suscríbete a nuestros planes Professional ($79/mes) o Enterprise ($149/mes)."
+                    "message": "🔒 Has alcanzado tu prueba gratuita de 1 escaneo/simulación por SEMANA. Para realizar auditorías e intercepciones ilimitadas, suscríbete a nuestros planes Professional ($79/mes) o Enterprise ($149/mes)."
                 }), 429
         return f(current_user_id, *args, **kwargs)
     return decorated
@@ -189,7 +189,7 @@ def index():
                     <h1>Aegis Prime SaaS Control Center</h1>
                     <p style="color:var(--text-muted); font-size:13px;">Monitoreo Autónomo con IA, Splunk HEC & Auditoría Cloud</p>
                 </div>
-                <div class="badge-cloud">⚡ CLOUD ENGINE v10.0 (ADMIN UNLIMITED)</div>
+                <div class="badge-cloud">⚡ CLOUD ENGINE v10.5 (STRICT QUOTA FOR ALL ACTIONS)</div>
             </div>
 
             <!-- LIVE THREAT RADAR & METRICS -->
@@ -471,13 +471,18 @@ def index():
                 });
                 const data = await res.json();
                 if (handle401(data)) return;
-                
-                setTimeout(() => {
-                    badge.innerHTML = "🟢 MITIGADO POR IA";
+                if (res.status === 429) {
+                    badge.innerHTML = "🟢 100% PROTEGIDO";
                     badge.style.color = "#00ff88";
-                    outDiv.innerHTML = `<pre style="color:#ff7b72; font-weight:bold;">${JSON.stringify(data, null, 2)}</pre>`;
-                    loadUserScans();
-                }, 1000);
+                    outDiv.innerHTML = `<p style="color:#ff7b72; font-weight:bold;">${data.message}</p>`;
+                } else {
+                    setTimeout(() => {
+                        badge.innerHTML = "🟢 MITIGADO POR IA";
+                        badge.style.color = "#00ff88";
+                        outDiv.innerHTML = `<pre style="color:#ff7b72; font-weight:bold;">${JSON.stringify(data, null, 2)}</pre>`;
+                        loadUserScans();
+                    }, 1000);
+                }
             } catch(e) {
                 setTimeout(() => {
                     badge.innerHTML = "🟢 100% PROTEGIDO";
@@ -611,7 +616,7 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v10.0 (Admin Unlimited Edition)",
+        "service": "Aegis Prime SaaS Cloud Engine v10.5 (Strict Quota Live Simulator)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -648,7 +653,6 @@ def register_admin():
     password = data.get("password") or "AdminMaster123!"
     company = data.get("company", "EMR Security HQ")
     
-    # Register user with Enterprise plan directly
     conn = database.sqlite3.connect(database.DB_PATH)
     cursor = conn.cursor()
     pwd_hash = database.generate_password_hash(password)
@@ -759,10 +763,11 @@ def ai_copilot_briefing(current_user_id):
     })
 
 
-# --- LIVE ATTACK SIMULATOR & SPLUNK INTEGRATION ENDPOINTS ---
+# --- LIVE ATTACK SIMULATOR & SPLUNK INTEGRATION ENDPOINTS (WITH QUOTA ENFORCEMENT) ---
 
 @app.route("/api/v1/simulation/live-attack", methods=["POST"])
 @token_required
+@quota_check
 def live_attack_simulation(current_user_id):
     data = request.get_json() or {}
     target = data.get("target", "185.220.101.5")
@@ -808,7 +813,7 @@ def splunk_siem_forwarder(current_user_id):
         "event_type": "AEGIS_SECURITY_AUDIT",
         "source": "Aegis Prime SaaS Cloud Engine",
         "target": target,
-        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|10.0|100|Security Audit Event|CRITICAL",
+        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|10.5|100|Security Audit Event|CRITICAL",
         "splunk_hec_format": {
             "time": time.time(),
             "host": target,
@@ -929,7 +934,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v10.0 (Admin Unlimited)")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v10.5 (Strict Quotas)")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

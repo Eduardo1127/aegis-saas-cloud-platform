@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 10.5 - Quota Enforcement on Live Attack Simulator
+Version: 11.0 - Clean Blank Production Login Form
 """
 
 import sys
@@ -76,7 +76,7 @@ def quota_check(f):
     return decorated
 
 
-# --- BULLETPROOF INLINE WEB APP ROUTE WITH ADMIN AUTO-RECOGNITION ---
+# --- BULLETPROOF INLINE WEB APP ROUTE WITH BLANK PRODUCTION LOGIN FORM ---
 
 @app.route("/")
 def index():
@@ -170,13 +170,13 @@ def index():
                 <h2 style="margin-bottom:8px; color:var(--accent-green)">🛡️ AEGIS PRIME SAAS</h2>
                 <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Plataforma Cloud de Ciberseguridad Defensiva con IA</p>
                 
-                <input type="email" id="loginEmail" class="input-field" placeholder="Correo Electrónico" value="admin@aegis.com">
-                <input type="password" id="loginPassword" class="input-field" placeholder="Contraseña" value="AdminMaster123!">
-                <input type="text" id="loginCompany" class="input-field" placeholder="Nombre de tu Empresa (Opcional)" value="EMR Security HQ">
+                <input type="email" id="loginEmail" class="input-field" placeholder="Correo Electrónico (ej. usuario@empresa.com)" value="">
+                <input type="password" id="loginPassword" class="input-field" placeholder="Contraseña de Usuario" value="">
+                <input type="text" id="loginCompany" class="input-field" placeholder="Nombre de tu Empresa (Para Registro)" value="">
                 
-                <div style="display:flex; gap:10px;">
-                    <button onclick="handleLogin()" class="btn-primary" style="flex:1;">Iniciar Sesión Admin</button>
-                    <button onclick="handleRegisterAdmin()" class="btn-primary" style="flex:1; background:var(--accent-purple); color:#fff;">Crear Cuenta Admin</button>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button onclick="handleLogin()" class="btn-primary" style="flex:1; min-width:140px;">Iniciar Sesión</button>
+                    <button onclick="handleRegisterUser()" class="btn-primary" style="flex:1; background:var(--accent-purple); color:#fff; min-width:140px;">Crear Cuenta Nueva</button>
                 </div>
                 <div id="authMsg" style="margin-top:16px; font-size:13px;"></div>
             </div>
@@ -189,7 +189,7 @@ def index():
                     <h1>Aegis Prime SaaS Control Center</h1>
                     <p style="color:var(--text-muted); font-size:13px;">Monitoreo Autónomo con IA, Splunk HEC & Auditoría Cloud</p>
                 </div>
-                <div class="badge-cloud">⚡ CLOUD ENGINE v10.5 (STRICT QUOTA FOR ALL ACTIONS)</div>
+                <div class="badge-cloud">⚡ CLOUD ENGINE v11.0 (PRODUCTION HARDENED)</div>
             </div>
 
             <!-- LIVE THREAT RADAR & METRICS -->
@@ -319,6 +319,11 @@ def index():
             const password = document.getElementById("loginPassword").value;
             const msgDiv = document.getElementById("authMsg");
 
+            if (!email || !password) {
+                msgDiv.innerHTML = `<span style="color:#ff7b72">❌ Por favor ingresa tu correo y contraseña.</span>`;
+                return;
+            }
+
             try {
                 const res = await fetch("/api/v1/auth/login", {
                     method: "POST",
@@ -340,14 +345,19 @@ def index():
             }
         }
 
-        async function handleRegisterAdmin() {
+        async function handleRegisterUser() {
             const email = document.getElementById("loginEmail").value;
             const password = document.getElementById("loginPassword").value;
             const company = document.getElementById("loginCompany").value;
             const msgDiv = document.getElementById("authMsg");
 
+            if (!email || !password) {
+                msgDiv.innerHTML = `<span style="color:#ff7b72">❌ Ingresa un correo y contraseña para crear tu cuenta.</span>`;
+                return;
+            }
+
             try {
-                const res = await fetch("/api/v1/auth/register-admin", {
+                const res = await fetch("/api/v1/auth/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password, company })
@@ -355,12 +365,12 @@ def index():
                 const data = await res.json();
 
                 if (data.status === "SUCCESS") {
-                    msgDiv.innerHTML = `<span style="color:#00ff88">👑 Cuenta Admin Creada con Éxito! Plan: ENTERPRISE ILIMITADO. Ahora haz clic en Iniciar Sesión.</span>`;
+                    msgDiv.innerHTML = `<span style="color:#00ff88">✅ Cuenta Creada con Éxito! Ahora haz clic en Iniciar Sesión.</span>`;
                 } else {
                     msgDiv.innerHTML = `<span style="color:#ff7b72">❌ ${data.message}</span>`;
                 }
             } catch (e) {
-                msgDiv.innerHTML = `<span style="color:#ff7b72">❌ Error al registrar cuenta Admin.</span>`;
+                msgDiv.innerHTML = `<span style="color:#ff7b72">❌ Error al registrar cuenta.</span>`;
             }
         }
 
@@ -602,7 +612,7 @@ def privacy():
         <p><strong>Aegis Prime SaaS — Cumplimiento SOC2 / GDPR / ISO 27001 Alignment</strong></p>
         
         <h2>1. Cifrado y Custodia de Información</h2>
-        <p>Toda la información capturada durante los análisis se cifra en tránsito utilizando protocolos TLS 1.3 (HTTPS) y en reposo mediante algoritmos AES-256. El acceso a los datos está estrictamente aislado por usuario mediante tokens criptográficos JWT.</p>
+        <p>Toda la información capturada durante los análisis se cifra en tránsito utilizando protocolos TLS 1.3 (HTTPS) y en reposo mediante algoritmos AES-256. El acceso a los datos está strictly aislado por usuario mediante tokens criptográficos JWT.</p>
         
         <h2>2. Propiedad de los Datos</h2>
         <p>El Cliente conserva el 100% de la propiedad de la información, informes y datos de su infraestructura auditados por la plataforma. Aegis Prime SaaS no vende ni comparte datos con terceros.</p>
@@ -616,7 +626,7 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v10.5 (Strict Quota Live Simulator)",
+        "service": "Aegis Prime SaaS Cloud Engine v11.0 (Production Form Clean)",
         "author": "Eduardo Mexquitic Rodriguez (EMR)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -813,7 +823,7 @@ def splunk_siem_forwarder(current_user_id):
         "event_type": "AEGIS_SECURITY_AUDIT",
         "source": "Aegis Prime SaaS Cloud Engine",
         "target": target,
-        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|10.5|100|Security Audit Event|CRITICAL",
+        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|11.0|100|Security Audit Event|CRITICAL",
         "splunk_hec_format": {
             "time": time.time(),
             "host": target,
@@ -934,7 +944,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v10.5 (Strict Quotas)")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v11.0 (Clean Form)")
     print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

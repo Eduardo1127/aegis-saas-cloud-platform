@@ -1332,13 +1332,63 @@ def checkout_subscription(current_user_id):
 @app.route("/api/v1/subscriptions/success", methods=["GET"])
 def subscription_success():
     session_id = request.args.get("session_id")
-    target_plan = request.args.get("plan")
+    target_plan = request.args.get("plan", "pro")
     user_id = request.args.get("user_id")
     
     if user_id and target_plan:
         database.update_user_plan(int(user_id), target_plan)
         
+        # Trigger Telegram PUSH Notification to Admin SOC
+        try:
+            tele_msg = f"💰 *PAGO DE CLIENTE RECIBIDO - STRIPE CHECKOUT*\n\n*ID Usuario:* `#{user_id}`\n*Plan Contratado:* `{target_plan.upper()}`\n*ID Sesión Stripe:* `{session_id[:20]}...`\n*Estado Cuenta:* 🟢 Aprovisionada e Ilimitada."
+            requests.post(f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/sendMessage", json={
+                "chat_id": config.TELEGRAM_CHAT_ID,
+                "text": tele_msg,
+                "parse_mode": "Markdown"
+            }, timeout=2)
+        except Exception:
+            pass
+
     return redirect("/?payment=success")
+
+
+# --- OFFICIAL STRIPE WEBHOOK HANDLER FOR AUTOMATED PROVISIONING ---
+
+@app.route("/api/v1/webhooks/stripe", methods=["POST"])
+def stripe_webhook():
+    payload = request.get_data(as_text=True)
+    sig_header = request.headers.get("Stripe-Signature")
+    
+    try:
+        event = json.loads(payload)
+    except Exception as e:
+        return jsonify({"status": "ERROR", "message": "Payload no válido"}), 400
+        
+    event_type = event.get("type")
+    
+    if event_type in ["checkout.session.completed", "invoice.payment_succeeded"]:
+        session = event.get("data", {}).get("object", {})
+        customer_email = session.get("customer_email") or session.get("customer_details", {}).get("email") or "cliente@empresa.com"
+        client_ref_id = session.get("client_reference_id")
+        
+        # Auto-provision plan in SQLite
+        if client_ref_id:
+            database.update_user_plan(int(client_ref_id), "pro")
+            
+        # Send instant PUSH notification to Admin Telegram SOC
+        try:
+            tele_msg = f"💳 *WEBHOOK STRIPE - SUSCRIPCIÓN COMPLETA*\n\n*Cliente:* `{customer_email}`\n*Evento:* `{event_type}`\n*Acción:* ⚡ Cuenta Aprovisionada Automáticamente."
+            requests.post(f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/sendMessage", json={
+                "chat_id": config.TELEGRAM_CHAT_ID,
+                "text": tele_msg,
+                "parse_mode": "Markdown"
+            }, timeout=2)
+        except Exception:
+            pass
+            
+        return jsonify({"status": "SUCCESS", "event": "ACCOUNT_PROVISIONED"}), 200
+        
+    return jsonify({"status": "SUCCESS", "event": "IGNORED"}), 200
 
 
 if __name__ == "__main__":

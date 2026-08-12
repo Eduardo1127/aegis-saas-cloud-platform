@@ -35,6 +35,14 @@ app.config["SECRET_KEY"] = config.SECRET_KEY
 # Initialize Stripe API Key
 stripe.api_key = config.STRIPE_SECRET_KEY
 
+# Automatic 301 Redirect to Custom Domain aegisprimesecurity.com
+@app.before_request
+def redirect_to_custom_domain():
+    host = request.headers.get("Host", "")
+    if "onrender.com" in host and not request.path.startswith("/api/v1/webhooks"):
+        new_url = request.url.replace(host, "aegisprimesecurity.com").replace("http://", "https://")
+        return redirect(new_url, code=301)
+
 
 def calculate_shannon_entropy(data_bytes: bytes) -> float:
     """Calcula la entropía de Shannon real (0.00 a 8.00) sobre una secuencia de bytes."""

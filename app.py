@@ -343,8 +343,8 @@ def index():
         }
 
         async function handleLogin() {
-            const email = document.getElementById("loginEmail").value;
-            const password = document.getElementById("loginPassword").value;
+            const email = (document.getElementById("loginEmail").value || "").trim();
+            const password = (document.getElementById("loginPassword").value || "").trim();
             const msgDiv = document.getElementById("authMsg");
 
             if (!email || !password) {
@@ -374,9 +374,9 @@ def index():
         }
 
         async function handleRegisterUser() {
-            const email = document.getElementById("loginEmail").value;
-            const password = document.getElementById("loginPassword").value;
-            const company = document.getElementById("loginCompany").value;
+            const email = (document.getElementById("loginEmail").value || "").trim();
+            const password = (document.getElementById("loginPassword").value || "").trim();
+            const company = (document.getElementById("loginCompany").value || "").trim();
             const msgDiv = document.getElementById("authMsg");
 
             if (!email || !password) {

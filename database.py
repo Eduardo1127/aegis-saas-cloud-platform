@@ -62,6 +62,8 @@ def init_db():
     conn.close()
 
 def register_user(email, password, company=""):
+    email = (email or "").strip().lower()
+    password = (password or "").strip()
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     pwd_hash = generate_password_hash(password)
@@ -78,9 +80,11 @@ def register_user(email, password, company=""):
         return False, "El usuario ya existe.", None
 
 def verify_user(email, password):
+    email = (email or "").strip().lower()
+    password = (password or "").strip()
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT id, email, password_hash, company, role, plan, hwid_license FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT id, email, password_hash, company, role, plan, hwid_license FROM users WHERE LOWER(email) = ?", (email,))
     row = cursor.fetchone()
     conn.close()
     if row and check_password_hash(row[2], password):

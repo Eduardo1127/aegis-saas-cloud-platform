@@ -330,6 +330,7 @@ def index():
             document.getElementById("dashboardContainer").style.display = "block";
             const sidebar = document.getElementById("sidebarNav");
             if (sidebar) sidebar.style.display = "flex";
+            window.scrollTo(0, 0);
             loadUserScans();
         }
 
@@ -364,7 +365,7 @@ def index():
                     authToken = data.token;
                     try { localStorage.setItem("saas_jwt_token", authToken); } catch(err) {}
                     msgDiv.innerHTML = `<span style="color:#00ff88">✅ Sesión iniciada como ${data.user.email} (${data.user.plan.toUpperCase()})</span>`;
-                    setTimeout(showDashboard, 400);
+                    showDashboard();
                 } else {
                     msgDiv.innerHTML = `<span style="color:#ff7b72">❌ ${data.message}</span>`;
                 }

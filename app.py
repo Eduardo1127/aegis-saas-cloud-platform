@@ -718,8 +718,15 @@ def download_pdf_report():
     target = request.args.get("target", "127.0.0.1")
     now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
+    # Execute deterministic recon audit
+    recon_data = red_recon_scanner.scan_target(target)
+    eval_info = recon_data.get("evaluacion_detallada", {})
+    score_str = f"{eval_info.get('score', 100)}/100 ({eval_info.get('nivel_riesgo', 'OPTIMIZADO')})"
+    deductions_list = eval_info.get("deducciones", [])
+    deductions_html = "".join([f"<li>{d}</li>" for d in deductions_list]) if deductions_list else "<li>Sin deducciones de riesgo detectadas.</li>"
+
     # Genuine SHA-256 Hash of Report Payload
-    raw_payload = f"AEGIS-REPORT-{target}-{now_str}".encode("utf-8")
+    raw_payload = f"AEGIS-REPORT-{target}-{now_str}-{eval_info.get('score', 100)}".encode("utf-8")
     sha256_full = hashlib.sha256(raw_payload).hexdigest().upper()
     report_hash = f"SHA256-{sha256_full[:16]}"
     
@@ -766,7 +773,7 @@ def download_pdf_report():
         </div>
         <div class="metric-cell">
             <div style="font-size:12px; color:#888;">ESTADO DE POSTURA</div>
-            <div class="metric-val">PROTEGIDO (RIESGO BAJO)</div>
+            <div class="metric-val">{eval_info.get('nivel_riesgo', 'OPTIMIZADO')}</div>
         </div>
         <div class="metric-cell">
             <div style="font-size:12px; color:#888;">INTEGRACIÓN SIEM</div>
@@ -775,9 +782,13 @@ def download_pdf_report():
     </div>
 
     <div class="section-box">
-        <h3 class="section-title">🔍 1. Resumen de Auditoría Perimetral Red Recon</h3>
-        <p><strong>Nivel de Vulnerabilidad Detectado:</strong> <span style="color:#00b862; font-weight:bold;">BAJO / OPTIMIZADO (Score: 12/100)</span></p>
-        <p>Se realizó un escaneo perimetral sobre <code>{target}</code>. No se detectaron vectores de ataque expuestos no autorizados en los puertos verificados. <em>Metodología: Escaneo perimetral de 1,000 puertos comunes y verificación de cabeceras HTTP de seguridad.</em></p>
+        <h3 class="section-title">🔍 1. Resumen de Auditoría Perimetral Red Recon (Auditoría Determinista)</h3>
+        <p><strong>Puntuación de Postura Calculada:</strong> <span style="color:#00b862; font-weight:bold;">{score_str}</span></p>
+        <p><em>Metodología: Evaluación determinista de verificación de puertos y auditoría de cabeceras HTTP de seguridad.</em></p>
+        <p><strong>Detalle de deducciones registradas:</strong></p>
+        <ul>
+            {deductions_html}
+        </ul>
     </div>
 
     <div class="section-box">

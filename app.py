@@ -26,6 +26,9 @@ import config
 import database
 from modules import ai_agentic_soc_copilot, cloud_security_auditor, red_recon_scanner
 
+# Ensure database tables and Admin Master credentials exist on startup
+database.init_db()
+
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.config["SECRET_KEY"] = config.SECRET_KEY
 

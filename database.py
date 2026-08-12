@@ -58,6 +58,13 @@ def init_db():
     )
     """)
     
+    # Ensure Admin Master user ALWAYS exists on server boot
+    admin_pwd_hash = generate_password_hash("AdminMaster123!")
+    cursor.execute("""
+    INSERT OR REPLACE INTO users (id, email, password_hash, company, role, plan, hwid_license)
+    VALUES (1, 'admin@aegis.com', ?, 'EMR Security HQ', 'admin', 'enterprise', 'EMR-ADMIN-MASTER-KEY')
+    """, (admin_pwd_hash,))
+    
     conn.commit()
     conn.close()
 

@@ -1328,14 +1328,11 @@ def checkout_subscription(current_user_id):
             "stripe_session_id": checkout_session.id
         })
     except Exception as e:
-        # Fallback cleanly to success page to prevent broken checkout links
-        success_fallback = f"{request.host_url}api/v1/subscriptions/success?session_id=cs_demo_active&plan={target_plan}&user_id={current_user_id}"
+        print(f"STRIPE CHECKOUT ERROR: {e}")
         return jsonify({
-            "status": "SUCCESS",
-            "message": f"Aprovisionando cuenta para el plan {tier_info['name']}...",
-            "checkout_url": success_fallback,
-            "stripe_session_id": "cs_demo_active"
-        })
+            "status": "ERROR",
+            "message": f"❌ Error en Pasarela de Stripe: {str(e)}"
+        }), 400
 
 
 @app.route("/api/v1/subscriptions/success", methods=["GET"])

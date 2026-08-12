@@ -734,6 +734,11 @@ def download_pdf_report():
     sha256_full = hashlib.sha256(raw_payload).hexdigest().upper()
     report_hash = f"SHA256-{sha256_full[:16]}"
     
+    # Execute Zero-Hallucination AI Copilot Briefing
+    copilot_data = ai_agentic_soc_copilot.analyze_incident({"target": target})
+    playbook_steps = copilot_data.get("playbook", [])
+    playbook_text = "\n".join(playbook_steps)
+
     html_content = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -802,18 +807,15 @@ def download_pdf_report():
     </div>
 
     <div class="section-box">
-        <h3 class="section-title">🤖 3. Dictamen y Playbook de Mitigación del Copiloto de IA</h3>
+        <h3 class="section-title">🤖 3. Dictamen y Playbook de Mitigación del Copiloto de IA (Cero Alucinaciones)</h3>
         <div class="playbook-box">
-[AEGIS SOC COPILOT EXECUTIVE BRIEFING]
+[AEGIS ZERO-HALLUCINATION SOC COPILOT BRIEFING]
 Target: {target}
 Analysis Timestamp: {now_str}
 Genuine SHA-256 Report Digest: {sha256_full}
 
 TACTICAL MITIGATION PLAYBOOK:
-1. Hardening de Firewall: Aplicar iptables/ufw drop rules para trafico anomalo en puerto 22.
-2. Bot SOAR Interception: Notificaciones PUSH activas 24/7 en Telegram.
-3. SIEM Logging: Eventos en formato CEF reenviados continuamente hacia Splunk Enterprise.
-4. Resiliencia Anti-Ransomware: Bovedas de respaldo con aislamiento de entropia Shannon.
+{playbook_text}
         </div>
     </div>
 

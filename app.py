@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
-Author: Eduardo Mexquitic Rodriguez (EMR)
-Version: 12.0 - 1-Click Executive PDF Security Report Engine
+Author: EMR (Lead Security Engineer)
+Version: 12.5 - Strict OpSec EMR Signature Branding
 """
 
 import sys
@@ -76,7 +76,7 @@ def quota_check(f):
     return decorated
 
 
-# --- BULLETPROOF INLINE WEB APP ROUTE WITH PDF REPORT GENERATOR ---
+# --- BULLETPROOF INLINE WEB APP ROUTE WITH EMR BRANDING ---
 
 @app.route("/")
 def index():
@@ -85,7 +85,7 @@ def index():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aegis Prime SaaS Cloud Platform — Eduardo Mexquitic Rodriguez (EMR)</title>
+    <title>Aegis Prime SaaS Cloud Platform — EMR</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -189,7 +189,7 @@ def index():
                     <h1>Aegis Prime SaaS Control Center</h1>
                     <p style="color:var(--text-muted); font-size:13px;">Monitoreo Autónomo con IA, Splunk HEC & Auditoría Cloud</p>
                 </div>
-                <div class="badge-cloud">⚡ CLOUD ENGINE v12.0 (1-CLICK EXECUTIVE PDF GENERATOR)</div>
+                <div class="badge-cloud">⚡ CLOUD ENGINE v12.5 (STRICT OPSEC EMR BRANDING)</div>
             </div>
 
             <!-- LIVE THREAT RADAR & METRICS -->
@@ -269,7 +269,7 @@ def index():
 
             <!-- LEGAL FOOTER LINKS -->
             <div style="margin-top:30px; text-align:center; color:var(--text-muted); font-size:13px;">
-                <p>© 2026 Aegis Prime SaaS Cloud Platform — Eduardo Mexquitic Rodriguez (EMR)</p>
+                <p>© 2026 Aegis Prime SaaS Cloud Platform — EMR</p>
                 <p style="margin-top:8px;">
                     <a href="/privacy" style="color:var(--accent-blue); text-decoration:none; margin-right:16px;">🛡️ Política de Privacidad & SOC2</a> | 
                     <a href="/terms" style="color:var(--accent-green); text-decoration:none; margin-left:16px;">⚖️ Términos de Servicio</a>
@@ -587,7 +587,7 @@ def terms():
     </head>
     <body>
         <h1>⚖️ Términos de Servicio y Limitación de Responsabilidad</h1>
-        <p><strong>Última actualización: 2026 — Aegis Prime SaaS / Eduardo Mexquitic Rodriguez (EMR)</strong></p>
+        <p><strong>Última actualización: 2026 — Aegis Prime SaaS / EMR</strong></p>
         
         <h2>1. Naturaleza de los Servicios</h2>
         <p>Aegis Prime SaaS proporciona herramientas de auditoría perimetral, monitoreo de seguridad y asistencia mediante Copiloto de Inteligencia Artificial de carácter estrictamente defensivo e informativo.</p>
@@ -632,13 +632,13 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v12.0 (1-Click Executive PDF Generator)",
-        "author": "Eduardo Mexquitic Rodriguez (EMR)",
+        "service": "Aegis Prime SaaS Cloud Engine v12.5 (Strict OpSec EMR Signature)",
+        "author": "EMR (Lead Security Engineer)",
         "timestamp": datetime.datetime.now().isoformat()
     })
 
 
-# --- EXECUTIVE PDF REPORT GENERATOR ROUTE ---
+# --- EXECUTIVE PDF REPORT GENERATOR ROUTE WITH EMR SIGNATURE ---
 
 @app.route("/api/v1/report/pdf", methods=["GET"])
 def download_pdf_report():
@@ -679,7 +679,7 @@ def download_pdf_report():
         <span class="stamp-badge">CONFIDENCIAL — SOC2 ALIGNED</span>
         <div class="brand-title">🛡️ AEGIS PRIME SAAS CLOUD PLATFORM</div>
         <div class="brand-sub">Informe Ejecutivo de Ciberseguridad & Postura Defensiva con IA</div>
-        <div class="brand-sub"><strong>Autor & Lead Security Engineer:</strong> Eduardo Mexquitic Rodriguez (EMR)</div>
+        <div class="brand-sub"><strong>Firma Autorizada:</strong> EMR (Lead Security Engineer)</div>
     </div>
 
     <div class="grid-metrics">
@@ -727,7 +727,7 @@ TACTICAL MITIGATION PLAYBOOK:
 
     <div class="footer-note">
         <p>Este informe fue generado automáticamente por la plataforma <strong>Aegis Prime SaaS Cloud Platform</strong>.</p>
-        <p>© 2026 Eduardo Mexquitic Rodriguez (EMR) — Lead Security Engineer | Verificación Criptográfica: {report_hash}</p>
+        <p>© 2026 EMR — Lead Security Engineer | Verificación Criptográfica: {report_hash}</p>
         <p>Términos Legales: <a href="https://aegis-saas-cloud-platform.onrender.com/terms">https://aegis-saas-cloud-platform.onrender.com/terms</a></p>
     </div>
 
@@ -932,12 +932,12 @@ def splunk_siem_forwarder(current_user_id):
     data = request.get_json() or {}
     target = data.get("target", "127.0.0.1")
     
-    # CEF / Splunk HEC JSON Event Format
+    # CEF / Splunk HEC JSON Event Format with EMR Signature
     cef_log = {
         "event_type": "AEGIS_SECURITY_AUDIT",
         "source": "Aegis Prime SaaS Cloud Engine",
         "target": target,
-        "cef_header": "CEF:0|EduardoMexquitic|AegisPrimeSaaS|12.0|100|Security Audit Event|CRITICAL",
+        "cef_header": "CEF:0|EMR|AegisPrimeSaaS|12.5|100|Security Audit Event|CRITICAL",
         "splunk_hec_format": {
             "time": time.time(),
             "host": target,
@@ -947,7 +947,8 @@ def splunk_siem_forwarder(current_user_id):
                 "user_id": current_user_id,
                 "action": "PERIMETER_AUDIT",
                 "posture": "SECURE",
-                "splunk_index": "main_security_events"
+                "splunk_index": "main_security_events",
+                "sign_by": "EMR"
             }
         }
     }
@@ -1058,8 +1059,8 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v12.0 (Executive PDF Engine)")
-    print("   Author: Eduardo Mexquitic Rodriguez (EMR)")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v12.5 (EMR OpSec Signature)")
+    print("   Author: EMR (Lead Security Engineer)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")
     app.run(host="0.0.0.0", port=5000, debug=True)

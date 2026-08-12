@@ -93,6 +93,7 @@ def analyze_incident(event_data: dict) -> dict:
         "status": "ANALYZED & MITIGATED",
         "target": target,
         "score": score,
+        "severity": nivel,
         "nivel_riesgo": nivel,
         "executive_summary": summary,
         "playbook": playbook,

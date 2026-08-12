@@ -1164,7 +1164,8 @@ def ai_copilot_briefing(current_user_id):
     data["ip"] = target
     
     result = ai_agentic_soc_copilot.analyze_incident(data)
-    database.record_scan(current_user_id, "AI_COPILOT", target, "SUCCESS", result["severity"], json.dumps(result))
+    severity_val = str(result.get("severity") or result.get("nivel_riesgo") or "HIGH")
+    database.record_scan(current_user_id, "AI_COPILOT", target, "SUCCESS", severity_val, json.dumps(result))
     
     return jsonify({
         "status": "SUCCESS",

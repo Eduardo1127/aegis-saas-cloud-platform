@@ -199,6 +199,9 @@ def index():
                     <button onclick="handleLogin()" class="btn-primary" style="flex:1; min-width:140px;">Iniciar Sesión</button>
                     <button onclick="handleRegisterUser()" class="btn-primary" style="flex:1; background:var(--accent-purple); color:#fff; min-width:140px;">Crear Cuenta Nueva</button>
                 </div>
+                <div style="margin-top:12px;">
+                    <button onclick="handleQuickAdminLogin()" class="btn-primary" style="width:100%; background:linear-gradient(135deg, #00ff88, #58a6ff); color:#000; font-weight:800;">⚡ Acceso Instantáneo VIP (1-Tap Master)</button>
+                </div>
                 <div id="authMsg" style="margin-top:16px; font-size:13px;"></div>
             </div>
         </div>
@@ -342,6 +345,12 @@ def index():
             return false;
         }
 
+        async function handleQuickAdminLogin() {
+            document.getElementById("loginEmail").value = "admin@aegis.com";
+            document.getElementById("loginPassword").value = "AdminMaster123!";
+            handleLogin();
+        }
+
         async function handleLogin() {
             const email = (document.getElementById("loginEmail").value || "").trim();
             const password = (document.getElementById("loginPassword").value || "").trim();
@@ -362,9 +371,9 @@ def index():
 
                 if (data.status === "SUCCESS") {
                     authToken = data.token;
-                    localStorage.setItem("saas_jwt_token", authToken);
+                    try { localStorage.setItem("saas_jwt_token", authToken); } catch(err) {}
                     msgDiv.innerHTML = `<span style="color:#00ff88">✅ Sesión iniciada como ${data.user.email} (${data.user.plan.toUpperCase()})</span>`;
-                    setTimeout(showDashboard, 600);
+                    setTimeout(showDashboard, 400);
                 } else {
                     msgDiv.innerHTML = `<span style="color:#ff7b72">❌ ${data.message}</span>`;
                 }

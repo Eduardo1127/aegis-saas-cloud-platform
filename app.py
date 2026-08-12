@@ -2,7 +2,7 @@
 """
 AEGIS PRIME SAAS CLOUD PLATFORM - REST API & WEB SERVER ENGINE
 Author: EMR (Lead Security Engineer)
-Version: 13.0 - Anti-Ransomware Shannon Entropy Honey-Vault Engine
+Version: 14.0 - Corporate Custom SLA Pricing Tier Update
 """
 
 import sys
@@ -76,7 +76,7 @@ def quota_check(f):
     return decorated
 
 
-# --- BULLETPROOF INLINE WEB APP ROUTE WITH ANTI-RANSOMWARE HONEY-VAULT ---
+# --- BULLETPROOF INLINE WEB APP ROUTE WITH CORPORATE SLA PRICING ---
 
 @app.route("/")
 def index():
@@ -190,7 +190,7 @@ def index():
                     <h1>Aegis Prime SaaS Control Center</h1>
                     <p style="color:var(--text-muted); font-size:13px;">Monitoreo Autónomo con IA, Splunk HEC & Bóveda Anti-Ransomware</p>
                 </div>
-                <div class="badge-cloud">⚡ CLOUD ENGINE v13.0 (SHANNON ENTROPY HONEY-VAULT)</div>
+                <div class="badge-cloud">⚡ CLOUD ENGINE v14.0 (CUSTOM CORPORATE SLA READY)</div>
             </div>
 
             <!-- LIVE THREAT RADAR & METRICS -->
@@ -235,14 +235,14 @@ def index():
                 </div>
             </div>
 
-            <!-- PRICING TIERS & STRIPE CHECKOUT -->
+            <!-- PRICING TIERS & STRIPE CHECKOUT WITH CORPORATE CUSTOM SLA FOOTER -->
             <div class="card" style="margin-bottom:30px;">
-                <h3>💳 Suscripciones Comerciales SaaS (Stripe Integration)</h3>
+                <h3>💳 Suscripciones Comerciales SaaS & Licenciamiento Corporativo</h3>
                 <div class="pricing-table">
                     <div class="price-card">
                         <h4>Basic Edition</h4>
                         <div class="price-val">$29 / mo</div>
-                        <p style="font-size:13px; color:var(--text-muted)">1 Escaneo por Semana</p>
+                        <p style="font-size:13px; color:var(--text-muted)">1 Escaneo por Semana (1 Servidor)</p>
                         <button onclick="triggerCheckout('basic')" class="btn-primary" style="margin-top:16px; width:100%;">Suscribirse</button>
                     </div>
                     <div class="price-card featured">
@@ -254,9 +254,13 @@ def index():
                     <div class="price-card">
                         <h4>Enterprise Master SOC</h4>
                         <div class="price-val">$149 / mo</div>
-                        <p style="font-size:13px; color:var(--text-muted)">Ilimitados + Splunk + Copiloto IA</p>
+                        <p style="font-size:13px; color:var(--text-muted)">Autoservicio PyMES + Splunk SIEM</p>
                         <button onclick="triggerCheckout('enterprise')" class="btn-primary" style="margin-top:16px; width:100%;">Suscribirse</button>
                     </div>
+                </div>
+                <div style="margin-top:20px; padding:16px; background:#0d1117; border:1px solid var(--accent-blue); border-radius:8px; text-align:center;">
+                    <h4 style="color:var(--accent-blue); margin-bottom:4px;">🏢 ¿Necesitas Monitoreo Masivo Corporativo (+500 a +2,500 Sucursales o Docker On-Premise)?</h4>
+                    <p style="font-size:13px; color:var(--text-muted);">Ofrecemos Acuerdos de Nivel de Servicio (Custom Corporate SLA) desde $1,500 USD/mes o Licencias Dedicadas Anuales en Docker ($15,000 USD/año).</p>
                 </div>
                 <div id="checkoutOutput" style="margin-top:16px;"></div>
             </div>
@@ -510,7 +514,7 @@ def index():
             const outDiv = document.getElementById("scanResultsOutput");
             const vaultBadge = document.getElementById("honeyVaultBadge");
             
-            vaultBadge.innerHTML = "🪤 DETECTANDO INTROSIÓN...";
+            vaultBadge.innerHTML = "🪤 DETECTANDO INTRUSIÓN...";
             vaultBadge.style.color = "#ffa657";
             outDiv.innerHTML = `<p style='color:#ffa657; font-weight:bold;'>🪤 MONITOREANDO ENTROPÍA DE ARCHIVO SEÑUELO 'recetas_pacientes_2026.docx.decoy'...</p>`;
 
@@ -675,7 +679,7 @@ def privacy():
 def health():
     return jsonify({
         "status": "ONLINE",
-        "service": "Aegis Prime SaaS Cloud Engine v13.0 (Shannon Entropy Honey-Vault)",
+        "service": "Aegis Prime SaaS Cloud Engine v14.0 (Custom Corporate SLA Ready)",
         "author": "EMR (Lead Security Engineer)",
         "timestamp": datetime.datetime.now().isoformat()
     })
@@ -1017,7 +1021,7 @@ def splunk_siem_forwarder(current_user_id):
         "event_type": "AEGIS_SECURITY_AUDIT",
         "source": "Aegis Prime SaaS Cloud Engine",
         "target": target,
-        "cef_header": "CEF:0|EMR|AegisPrimeSaaS|13.0|100|Security Audit Event|CRITICAL",
+        "cef_header": "CEF:0|EMR|AegisPrimeSaaS|14.0|100|Security Audit Event|CRITICAL",
         "splunk_hec_format": {
             "time": time.time(),
             "host": target,
@@ -1139,7 +1143,7 @@ def subscription_success():
 
 if __name__ == "__main__":
     print("==================================================================")
-    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v13.0 (Honey-Vault Engine)")
+    print("🚀 AEGIS PRIME SAAS CLOUD PLATFORM ENGINE v14.0 (Custom Corporate SLA)")
     print("   Author: EMR (Lead Security Engineer)")
     print("==================================================================")
     print("🟢 Server running live at: http://localhost:5000")

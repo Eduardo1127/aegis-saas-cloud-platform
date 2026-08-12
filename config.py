@@ -15,7 +15,7 @@ TELEGRAM_BOT_TOKEN = "8893915158:AAFWy8WTn2sXP0_GXgRFEKsOkGtMeOfpie0"
 TELEGRAM_CHAT_ID = "8926630685"
 
 # Official Live Stripe API Keys (Read securely from Environment Variables on Cloud Server)
-STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "pk_test_51U2PHdDAaoULbJgOH8olrp6xjsJud7AmXO8VLLlE4j9K7kvWd8LjhSIjrDmdLwW8xLTgZVetBmzv78Pbey78gjO100fmnEdtrw")
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "pk_live_51U2PHdDAaoULbJgOhFLt0wxe8F8qUIkWkZWqhh5cOzsQdtvVg6IuipCcYd4IcldbksDc1CaFw6b0UnwXyaT7FXbe00ge03kxEs")
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
 
 # Pricing Tiers (USD)

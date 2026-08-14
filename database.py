@@ -121,6 +121,22 @@ def verify_user(email, password):
     return False, "Credenciales incorrectas."
 
 def record_scan(user_id, scan_type, target, status, summary, details_json=""):
+    try:
+        if isinstance(details_json, str) and details_json.strip():
+            data = json.loads(details_json)
+        elif isinstance(details_json, dict):
+            data = details_json
+        else:
+            data = {}
+            
+        payload_bytes = json.dumps(data, sort_keys=True).encode("utf-8")
+        real_sha256 = hashlib.sha256(payload_bytes).hexdigest().upper()
+        data["sha256_full"] = real_sha256
+        data["custody_hash"] = f"SHA256-{real_sha256[:16]}"
+        details_json = json.dumps(data)
+    except Exception:
+        pass
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO scan_history (user_id, scan_type, target, status, summary, details_json) VALUES (?, ?, ?, ?, ?, ?)",

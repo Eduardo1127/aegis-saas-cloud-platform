@@ -1326,32 +1326,52 @@ def live_attack_simulation(current_user_id):
 @token_required
 def splunk_siem_forwarder(current_user_id):
     data = request.get_json() or {}
-    target = data.get("target", "127.0.0.1")
+    target = data.get("target") or data.get("ip") or "127.0.0.1"
+    splunk_url = data.get("splunk_url") or config.SPLUNK_HEC_URL if hasattr(config, "SPLUNK_HEC_URL") else "https://your-splunk-instance:8088/services/collector/event"
+    splunk_token = data.get("splunk_token") or getattr(config, "SPLUNK_HEC_TOKEN", "aegis-hec-token-demo")
     
-    # CEF / Splunk HEC JSON Event Format with EMR Signature
     cef_log = {
         "event_type": "AEGIS_SECURITY_AUDIT",
-        "source": "Aegis Prime SaaS Cloud Engine",
+        "source": "aegis-prime-copilot",
         "target": target,
-        "cef_header": "CEF:0|EMR|AegisPrimeSaaS|16.0|100|Security Audit Event|CRITICAL",
+        "cef_header": "CEF:0|EMR|AegisPrimeSaaS|31.0|100|Security Audit Event|CRITICAL",
         "splunk_hec_format": {
             "time": time.time(),
             "host": target,
             "source": "aegis_saas_engine",
-            "sourcetype": "_json",
+            "sourcetype": "aegis:security:audit",
+            "index": "security_metrics",
             "event": {
                 "user_id": current_user_id,
+                "target": target,
                 "action": "PERIMETER_AUDIT",
                 "posture": "SECURE",
-                "splunk_index": "main_security_events",
-                "sign_by": "EMR"
+                "sign_by": "EMR",
+                "audit_timestamp": datetime.datetime.utcnow().isoformat()
             }
         }
     }
+
+    forwarded_live = False
+    if splunk_url and not splunk_url.startswith("https://your-splunk-instance"):
+        try:
+            headers = {"Authorization": f"Splunk {splunk_token}", "Content-Type": "application/json"}
+            payload = {
+                "event": cef_log["splunk_hec_format"]["event"],
+                "sourcetype": "aegis:security:audit",
+                "source": "aegis-prime-copilot",
+                "index": "security_metrics"
+            }
+            resp = requests.post(splunk_url, headers=headers, json=payload, timeout=3, verify=False)
+            if resp.status_code == 200:
+                forwarded_live = True
+        except Exception:
+            pass
     
     return jsonify({
         "status": "SUCCESS",
-        "message": "📊 Eventos de seguridad reenviados exitosamente al colector de Splunk (Splunk HEC HTTP API).",
+        "message": "📊 Eventos de seguridad formateados y procesados para Splunk HEC API.",
+        "forwarded_live": forwarded_live,
         "data": cef_log
     })
 

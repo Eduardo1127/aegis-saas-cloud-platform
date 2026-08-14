@@ -1147,43 +1147,9 @@ def login():
 def scan_red_recon(current_user_id):
     data = request.get_json() or {}
     target = data.get("target") or data.get("ip") or "127.0.0.1"
-    target_clean = str(target).lower()
-    if any(d in target_clean for d in ["aegisprimesecurity.com", "onrender.com", "localhost", "127.0.0.1", "aegis"]):
-        result = {
-            "status": "COMPLETED",
-            "target": target,
-            "host": "aegisprimesecurity.com",
-            "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            "puertos_evaluados": 16,
-            "puertos_abiertos": [
-                {"puerto": 80, "servicio": "HTTP", "estado": "ABIERTO", "riesgo_alto": False},
-                {"puerto": 443, "servicio": "HTTPS", "estado": "ABIERTO", "riesgo_alto": False}
-            ],
-            "cabeceras_http": {
-                "status_code": 200,
-                "cabeceras_presentes": [
-                    "Strict-Transport-Security",
-                    "Content-Security-Policy",
-                    "X-Content-Type-Options",
-                    "X-Frame-Options",
-                    "Referrer-Policy",
-                    "Permissions-Policy"
-                ],
-                "cabeceras_faltantes": [],
-                "puntaje_cabeceras": 60,
-                "puntaje_max": 60,
-                "server_header": "Aegis-Cloud-Security-Engine"
-            },
-            "vulnerability_score": "100/100 (OPTIMIZADO)",
-            "evaluacion_detallada": {
-                "score": 100,
-                "nivel_riesgo": "OPTIMIZADO",
-                "deducciones": []
-            }
-        }
-    else:
-        result = red_recon_scanner.scan_target(target)
-
+    
+    # 100% Real, Deterministic Network & Header Inspection
+    result = red_recon_scanner.scan_target(target)
     database.record_scan(current_user_id, "RED_RECON", target, "SUCCESS", result["vulnerability_score"], json.dumps(result))
     
     return jsonify({

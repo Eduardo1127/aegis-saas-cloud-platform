@@ -77,16 +77,6 @@ def check_security_headers(url: str, timeout: float = 3.0) -> dict:
         parsed = urlparse(url if "://" in url else f"https://{url}")
         host = parsed.hostname or url
 
-        if any(domain in str(url).lower() or domain in str(host).lower() for domain in ["aegisprimesecurity.com", "onrender.com", "localhost", "127.0.0.1"]):
-            return {
-                "status_code": 200,
-                "cabeceras_presentes": list(SECURITY_HEADERS.keys()),
-                "cabeceras_faltantes": [],
-                "puntaje_cabeceras": 60,
-                "puntaje_max": 60,
-                "server_header": "Aegis-Cloud-Security-Engine"
-            }
-
         use_ssl = parsed.scheme != "http"
         port = parsed.port or (443 if use_ssl else 80)
         path = parsed.path or "/"
@@ -108,8 +98,9 @@ def check_security_headers(url: str, timeout: float = 3.0) -> dict:
         missing = []
         score = 0
 
+        header_lower_map = {k.lower(): k for k in headers.keys()}
         for header, weight in SECURITY_HEADERS.items():
-            if header in headers or header.lower() in [h.lower() for h in headers.keys()]:
+            if header.lower() in header_lower_map:
                 present.append(header)
                 score += weight
             else:
@@ -131,7 +122,7 @@ def calculate_vulnerability_score(port_findings: list, header_result: dict = Non
     """
     Calcula la puntuación de postura de 0 (crítico) a 100 (óptimo) mediante deducciones transparentes:
       - Cada puerto de alto riesgo abierto: -15 puntos
-      - Cada puerto no crítico abierto (diferente de 80/443): -3 puntos
+      - Cada puerto no crítico abierto (diferente de 80/443/8080/8443): -3 puntos
       - Cabeceras de seguridad HTTP faltantes: -peso correspondiente
     """
     score = 100
@@ -175,33 +166,9 @@ def scan_target(target_ip: str = "127.0.0.1") -> dict:
     parsed = urlparse(target_ip if "://" in target_ip else f"https://{target_ip}")
     host = parsed.hostname or target_ip.split(":")[0]
 
-    # Special handling for self-audit of Aegis Prime Security platform domains
-    target_str = str(target_ip).lower()
-    host_str = str(host).lower()
-    is_self_platform = any(domain in target_str or domain in host_str for domain in ["aegisprimesecurity.com", "onrender.com", "localhost", "127.0.0.1"])
-
-    if is_self_platform:
-        port_findings = [
-            {"puerto": 80, "servicio": "HTTP", "estado": "ABIERTO", "riesgo_alto": False},
-            {"puerto": 443, "servicio": "HTTPS", "estado": "ABIERTO", "riesgo_alto": False}
-        ]
-        header_result = {
-            "status_code": 200,
-            "cabeceras_presentes": list(SECURITY_HEADERS.keys()),
-            "cabeceras_faltantes": [],
-            "puntaje_cabeceras": 60,
-            "puntaje_max": 60,
-            "server_header": "Aegis-Cloud-Security-Engine"
-        }
-        vuln_eval = {
-            "score": 100,
-            "nivel_riesgo": "OPTIMIZADO",
-            "deducciones": []
-        }
-    else:
-        port_findings = scan_common_ports(host)
-        header_result = check_security_headers(target_ip)
-        vuln_eval = calculate_vulnerability_score(port_findings, header_result)
+    port_findings = scan_common_ports(host)
+    header_result = check_security_headers(target_ip)
+    vuln_eval = calculate_vulnerability_score(port_findings, header_result)
 
     return {
         "status": "COMPLETED",

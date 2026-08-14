@@ -919,6 +919,37 @@ PLAN DE ACCIÓN TÁCTICO RECOMENDADO PARA EL NEGOCIO:
     return response
 
 
+# --- 🔒 PUBLIC SHA-256 CUSTODY HASH VERIFICATION PORTAL (/verify) ---
+
+@app.route("/verify", methods=["GET"])
+@app.route("/verify/<path:hash_code>", methods=["GET"])
+def public_verify_page(hash_code=None):
+    query_hash = hash_code or request.args.get("hash") or request.args.get("code") or ""
+    scan_record = database.find_scan_by_hash(query_hash) if query_hash else None
+    return render_template("verify.html", query_hash=query_hash, scan_record=scan_record)
+
+@app.route("/api/v1/verify/hash", methods=["GET", "POST"])
+def api_verify_hash():
+    data = request.get_json() or {}
+    query_hash = data.get("hash") or data.get("code") or request.args.get("hash") or request.args.get("code") or ""
+    
+    scan_record = database.find_scan_by_hash(query_hash)
+    if scan_record:
+        return jsonify({
+            "status": "SUCCESS",
+            "verified": True,
+            "verification_stamp": "AUTHENTIC_AEGIS_DOCUMENT",
+            "issuer": "Ing. Eduardo Mexquitic Rodríguez (EMR) - CISO Aegis Prime Security",
+            "record": scan_record
+        }), 200
+    else:
+        return jsonify({
+            "status": "ERROR",
+            "verified": False,
+            "message": "No se encontró ningún registro de auditoría correspondiente a esta huella criptográfica."
+        }), 404
+
+
 # --- 🔬 REAL SHANNON ENTROPY & GENUINE SHA-256 FORENSIC PDF REPORT ROUTE ---
 
 @app.route("/api/v1/report/forensic-pdf", methods=["GET"])

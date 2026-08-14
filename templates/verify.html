@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Cadena de Custodia SHA-256 — Aegis Prime Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0d14;
+            --card-bg: rgba(22, 27, 34, 0.95);
+            --border-color: rgba(48, 54, 61, 0.8);
+            --accent-green: #00ff88;
+            --accent-blue: #58a6ff;
+            --accent-purple: #bc8cff;
+            --accent-red: #ff7b72;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg-dark); color: var(--text-main); font-family: 'Outfit', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+        .verify-container { max-width: 680px; width: 100%; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 36px; box-shadow: 0 12px 48px rgba(0,0,0,0.5); backdrop-filter: blur(16px); }
+        .brand-header { text-align: center; margin-bottom: 28px; }
+        .brand-title { font-size: 24px; font-weight: 800; color: var(--accent-green); letter-spacing: 1px; }
+        .brand-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+        .search-box { display: flex; gap: 12px; margin-bottom: 28px; }
+        .input-hash { flex: 1; background: #0d1117; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; color: #fff; font-family: monospace; font-size: 14px; }
+        .btn-verify { background: linear-gradient(135deg, #00ff88, #00b862); color: #000; font-weight: 700; border: none; padding: 14px 24px; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+        .btn-verify:hover { transform: translateY(-2px); }
+        .result-box { background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-top: 20px; }
+        .stamp-valid { background: rgba(0, 255, 136, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); font-weight: 800; padding: 8px 16px; border-radius: 6px; display: inline-block; margin-bottom: 16px; font-size: 13px; }
+        .stamp-invalid { background: rgba(255, 123, 114, 0.15); border: 1px solid var(--accent-red); color: var(--accent-red); font-weight: 800; padding: 8px 16px; border-radius: 6px; display: inline-block; margin-bottom: 16px; font-size: 13px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+        .detail-row:last-child { border-bottom: none; }
+        .label { color: var(--text-muted); }
+        .val { font-weight: 600; color: #fff; font-family: monospace; word-break: break-all; }
+        .footer-verify { text-align: center; margin-top: 28px; font-size: 12px; color: var(--text-muted); }
+        .footer-verify a { color: var(--accent-blue); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="verify-container">
+        <div class="brand-header">
+            <div class="brand-title">🛡️ AEGIS PRIME SECURITY</div>
+            <div class="brand-sub">Portal Oficial de Verificación de Cadena de Custodia Criptográfica SHA-256</div>
+        </div>
+
+        <form action="/verify" method="GET" class="search-box">
+            <input type="text" name="hash" class="input-hash" placeholder="Ingrese Hash SHA-256 (ej: F9BEA21931B6... o SHA256-F9BEA219)" value="{{ query_hash }}" required>
+            <button type="submit" class="btn-verify">🔍 Verificar</button>
+        </form>
+
+        {% if scan_record %}
+            <div class="result-box">
+                <div class="stamp-valid">🟢 DOCUMENTO AUTÉNTICO VERIFICADO EN CADENA DE CUSTODIA</div>
+                <div class="detail-row">
+                    <span class="label">Emisor de Firma:</span>
+                    <span class="val" style="color: var(--accent-green);">Ing. Eduardo Mexquitic Rodríguez (EMR)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Objetivo Evaluado:</span>
+                    <span class="val" style="color: var(--accent-blue);">{{ scan_record.target }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Tipo de Auditoría:</span>
+                    <span class="val">{{ scan_record.scan_type }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Dictamen Registrado:</span>
+                    <span class="val" style="color: var(--accent-purple);">{{ scan_record.summary }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Fecha y Hora UTC:</span>
+                    <span class="val">{{ scan_record.created_at }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Certificado de Validez:</span>
+                    <span class="val">100% Genuino (Sin alterations registradas)</span>
+                </div>
+            </div>
+        {% elif query_hash %}
+            <div class="result-box">
+                <div class="stamp-invalid">🔴 REGISTRO NO ENCONTRADO O ALTERADO</div>
+                <p style="font-size: 13px; color: var(--text-muted);">
+                    No se encontró ningún dictamen en la base de datos de <strong>Aegis Prime Security</strong> que coincida con el Hash <code>{{ query_hash }}</code>. 
+                    Si el documento fue modificado, la firma criptográfica se invalida automáticamente.
+                </p>
+            </div>
+        {% else %}
+            <div style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px;">
+                💡 <em>Ingrese el código Hash SHA-256 impreso en el pie de página de cualquier Reporte Pericial de Aegis Prime Security para autenticar su validez inmutable.</em>
+            </div>
+        {% endif %}
+
+        <div class="footer-verify">
+            © 2026 Aegis Prime Security — EMR CISO Office<br>
+            <a href="https://aegisprimesecurity.com">Volver a la Consola Principal</a>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -131,7 +131,7 @@ def calculate_vulnerability_score(port_findings: list, header_result: dict = Non
             if f["riesgo_alto"]:
                 score -= 15
                 deductions.append(f"Puerto {f['puerto']} ({f['servicio']}) expuesto (-15 pts)")
-            elif f["puerto"] not in (80, 443):
+            elif f["puerto"] not in (80, 443, 8080, 8443):
                 score -= 3
                 deductions.append(f"Puerto {f['puerto']} ({f['servicio']}) abierto (-3 pts)")
 

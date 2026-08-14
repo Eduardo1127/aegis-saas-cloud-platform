@@ -43,6 +43,17 @@ def redirect_to_custom_domain():
         new_url = request.url.replace(host, "aegisprimesecurity.com").replace("http://", "https://")
         return redirect(new_url, code=301)
 
+# Inject Enterprise Security Headers on all HTTP responses
+@app.after_request
+def add_security_headers(response):
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:;"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    return response
+
 
 def calculate_shannon_entropy(data_bytes: bytes) -> float:
     """Calcula la entropía de Shannon real (0.00 a 8.00) sobre una secuencia de bytes."""

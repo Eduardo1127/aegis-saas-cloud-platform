@@ -6,6 +6,8 @@ Author: Eduardo Mex Rodriguez (EMR)
 
 import sqlite3
 import os
+import json
+import hashlib
 import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 

@@ -165,7 +165,9 @@ def scan_target(target_ip: str = "127.0.0.1") -> dict:
     host = parsed.hostname or target_ip.split(":")[0]
 
     # Special handling for self-audit of Aegis Prime Security platform domains
-    is_self_platform = any(domain in host.lower() for domain in ["aegisprimesecurity.com", "onrender.com", "localhost", "127.0.0.1"])
+    target_str = str(target_ip).lower()
+    host_str = str(host).lower()
+    is_self_platform = any(domain in target_str or domain in host_str for domain in ["aegisprimesecurity.com", "onrender.com", "localhost", "127.0.0.1"])
 
     if is_self_platform:
         port_findings = [

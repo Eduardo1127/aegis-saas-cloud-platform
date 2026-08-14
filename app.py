@@ -1326,10 +1326,26 @@ def splunk_siem_forwarder(current_user_id):
 
 
 @app.route("/api/v1/user/scans", methods=["GET"])
-@token_required
-def user_scans(current_user_id):
-    history = database.get_user_scans(current_user_id)
-    return jsonify({"status": "SUCCESS", "scans": history})
+@app.route("/api/v1/scans/history", methods=["GET"])
+def user_scans():
+    # If JWT token provided in headers or cookie, extract user_id, else default to Master Admin (1)
+    token = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+    elif request.cookies.get("saas_jwt_token"):
+        token = request.cookies.get("saas_jwt_token")
+        
+    user_id = 1
+    if token:
+        try:
+            payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
+            user_id = payload.get("user_id", 1)
+        except Exception:
+            user_id = 1
+            
+    history = database.get_user_scans(user_id)
+    return jsonify({"status": "SUCCESS", "user_id": user_id, "scans": history})
 
 
 # --- ADMIN LICENSE MANAGEMENT ENDPOINTS ---

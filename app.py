@@ -291,7 +291,7 @@ def index():
                     <div class="price-card featured">
                         <h4 style="color:var(--accent-green)">Professional Edition</h4>
                         <div class="price-val">$79 / mo</div>
-                        <p style="font-size:13px; color:var(--text-muted)">500 Escaneos + Bot SOAR Telegram</p>
+                        <p style="font-size:13px; color:var(--text-muted)">100 Escaneos / Mes + Bot SOAR Telegram</p>
                         <button onclick="triggerCheckout('pro')" class="btn-primary" style="margin-top:16px; width:100%;">Suscribirse</button>
                     </div>
                     <div class="price-card">
@@ -302,7 +302,7 @@ def index():
                     </div>
                 </div>
                 <div style="margin-top:20px; padding:16px; background:#0d1117; border:1px solid var(--accent-blue); border-radius:8px; text-align:center;">
-                    <h4 style="color:var(--accent-blue); margin-bottom:4px;">🏢 ¿Necesitas Monitoreo Masivo Corporativo (+500 a +2,500 Sucursales o Docker On-Premise)?</h4>
+                    <h4 style="color:var(--accent-blue); margin-bottom:4px;">🏢 ¿Necesitas Monitoreo Masivo Corporativo (5 a 500 Sucursales o Docker On-Premise)?</h4>
                     <p style="font-size:13px; color:var(--text-muted);">Ofrecemos Acuerdos de Nivel de Servicio (Custom Corporate SLA) desde $1,500 USD/mes o Licencias Dedicadas Anuales en Docker ($15,000 USD/año).</p>
                 </div>
                 <div id="checkoutOutput" style="margin-top:16px;"></div>

@@ -20,7 +20,7 @@ STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
 
 # Pricing Tiers (USD)
 TIERS = {
-    "basic": {"name": "Basic Edition", "price": 29.00, "scans_per_month": 50, "support": "Standard"},
-    "pro": {"name": "Professional Edition", "price": 79.00, "scans_per_month": 500, "support": "Priority 24/7"},
+    "basic": {"name": "Basic Edition", "price": 29.00, "scans_per_month": 10, "support": "Standard"},
+    "pro": {"name": "Professional Edition", "price": 79.00, "scans_per_month": 100, "support": "Priority 24/7 (5 a 500 Sucursales)"},
     "enterprise": {"name": "Enterprise Master SOC", "price": 149.00, "scans_per_month": "Unlimited", "support": "Dedicated CISO & AI Copilot"}
 }

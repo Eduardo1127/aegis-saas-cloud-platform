@@ -976,7 +976,9 @@ def public_demo_page():
 
 # --- 🎣 AEGIS PHISHGUARD INDEPENDENT PORTAL (/phishguard) ---
 
-@app.route("/phishguard", methods=["GET"])
+@app.route("/phishguard", methods=["GET", "POST"])
+@app.route("/phishguard/", methods=["GET", "POST"])
+@app.route("/api/v1/phishguard", methods=["GET", "POST"])
 def public_phishguard_page():
     company = request.args.get("company") or ""
     employees = int(request.args.get("employees", 50))

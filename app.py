@@ -919,6 +919,61 @@ PLAN DE ACCIÓN TÁCTICO RECOMENDADO PARA EL NEGOCIO:
     return response
 
 
+# --- 🚀 PUBLIC 1-CLICK INSTANT DEMO / TRIAL ROUTE (/demo & /trial) ---
+
+@app.route("/demo", methods=["GET"])
+@app.route("/trial", methods=["GET"])
+def public_demo_page():
+    target = request.args.get("target") or request.args.get("domain") or ""
+    result = None
+    if target:
+        try:
+            result = red_recon_scanner.scan_target(target)
+            database.record_scan(1, "RED_RECON_TRIAL", target, "SUCCESS", result.get("vulnerability_score","100/100"), json.dumps(result))
+        except Exception as e:
+            result = {"status": "ERROR", "message": str(e)}
+            
+    html_demo = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Auditoría Gratuita 24H — Aegis Prime Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {{ background: #0a0d14; color: #f0f6fc; font-family: 'Outfit', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; margin: 0; }}
+        .box {{ max-width: 640px; width: 100%; background: rgba(22, 27, 34, 0.95); border: 1px solid rgba(48, 54, 61, 0.8); border-radius: 16px; padding: 32px; box-shadow: 0 12px 48px rgba(0,0,0,0.5); text-align: center; }}
+        .title {{ font-size: 24px; font-weight: 800; color: #00ff88; margin-bottom: 8px; }}
+        .sub {{ font-size: 13px; color: #8b949e; margin-bottom: 24px; }}
+        .form-row {{ display: flex; gap: 10px; margin-bottom: 24px; }}
+        .input-domain {{ flex: 1; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 14px; color: #fff; font-size: 14px; }}
+        .btn-run {{ background: linear-gradient(135deg, #00ff88, #00b862); color: #000; font-weight: 700; border: none; padding: 14px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; }}
+        .res-card {{ background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: left; margin-top: 20px; font-family: monospace; font-size: 13px; max-height: 320px; overflow-y: auto; }}
+        .badge {{ background: rgba(0, 255, 136, 0.15); border: 1px solid #00ff88; color: #00ff88; font-weight: 700; padding: 6px 12px; border-radius: 6px; display: inline-block; margin-bottom: 12px; font-size: 12px; }}
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="title">🛡️ AEGIS PRIME SECURITY</div>
+        <div class="sub">Prueba de Auditoría Perimetral 100% Gratuita & Sin Registro</div>
+        
+        <form action="/demo" method="GET" class="form-row">
+            <input type="text" name="target" class="input-domain" placeholder="Ingresa tu Dominio o IP (ej. tuempresa.com)" value="{target}" required>
+            <button type="submit" class="btn-run">🚀 Auditar Ahora</button>
+        </form>
+
+        {"<div class='res-card'><div class='badge'>🟢 AUDITORÍA EVALUADA EN VIVO</div><pre style='color:#58a6ff; white-space:pre-wrap;'>" + json.dumps(result, indent=2, ensure_ascii=False) + "</pre><div style='margin-top:16px; text-align:center;'><a href='/api/v1/report/pdf?target=" + target + "&level=FORENSIC' style='color:#00ff88; text-decoration:none; font-weight:bold;'>📄 Descargar Reporte Pericial PDF</a></div></div>" if result else "<p style='color:#8b949e; font-size:13px;'>💡 Ingresa el dominio de tu empresa para ejecutar una evaluación determinista en tiempo real.</p>"}
+
+        <div style="margin-top:24px; font-size:12px; color:#8b949e;">
+            © 2026 Aegis Prime Security — EMR CISO Office<br>
+            <a href="https://aegisprimesecurity.com" style="color:#58a6ff; text-decoration:none;">Ir a la Consola Principal</a>
+        </div>
+    </div>
+</body>
+</html>"""
+    return make_response(html_demo)
+
+
 # --- 🔒 PUBLIC SHA-256 CUSTODY HASH VERIFICATION PORTAL (/verify) ---
 
 @app.route("/verify", methods=["GET"])

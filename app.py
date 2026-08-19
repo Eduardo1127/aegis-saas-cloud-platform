@@ -669,6 +669,9 @@ def index():
         }
     </script>
 </body>
+</html>"""
+
+
 # --- 🎣 AEGIS PHISHGUARD INDEPENDENT PORTAL (/phishguard) ---
 
 @app.route("/phishguard", methods=["GET", "POST"])

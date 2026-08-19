@@ -669,7 +669,29 @@ def index():
         }
     </script>
 </body>
-</html>"""
+# --- 🎣 AEGIS PHISHGUARD INDEPENDENT PORTAL (/phishguard) ---
+
+@app.route("/phishguard", methods=["GET", "POST"])
+@app.route("/phishguard/", methods=["GET", "POST"])
+@app.route("/api/v1/phishguard", methods=["GET", "POST"])
+def public_phishguard_page():
+    company = request.args.get("company") or ""
+    employees = int(request.args.get("employees", 50))
+    template_id = request.args.get("template", "PAYROLL_UPDATE")
+    
+    result = None
+    result_json = ""
+    if company:
+        try:
+            result = phishguard_engine.simulate_campaign(company, employees, template_id)
+            result_json = json.dumps(result, indent=2, ensure_ascii=False)
+            database.record_scan(1, "PHISHGUARD_SIMULATION", company, "SUCCESS", result["metricas_riesgo_humano"]["posture_score_humano"], json.dumps(result))
+        except Exception as e:
+            result = {"status": "ERROR", "message": str(e)}
+            result_json = json.dumps(result, indent=2)
+            
+    return render_template("phishguard.html", company=company, employees=employees, template_id=template_id, result=result, result_json=result_json)
+
 
 @app.route("/terms")
 def terms():
@@ -974,28 +996,7 @@ def public_demo_page():
     return make_response(html_demo)
 
 
-# --- 🎣 AEGIS PHISHGUARD INDEPENDENT PORTAL (/phishguard) ---
 
-@app.route("/phishguard", methods=["GET", "POST"])
-@app.route("/phishguard/", methods=["GET", "POST"])
-@app.route("/api/v1/phishguard", methods=["GET", "POST"])
-def public_phishguard_page():
-    company = request.args.get("company") or ""
-    employees = int(request.args.get("employees", 50))
-    template_id = request.args.get("template", "PAYROLL_UPDATE")
-    
-    result = None
-    result_json = ""
-    if company:
-        try:
-            result = phishguard_engine.simulate_campaign(company, employees, template_id)
-            result_json = json.dumps(result, indent=2, ensure_ascii=False)
-            database.record_scan(1, "PHISHGUARD_SIMULATION", company, "SUCCESS", result["metricas_riesgo_humano"]["posture_score_humano"], json.dumps(result))
-        except Exception as e:
-            result = {"status": "ERROR", "message": str(e)}
-            result_json = json.dumps(result, indent=2)
-            
-    return render_template("phishguard.html", company=company, employees=employees, template_id=template_id, result=result, result_json=result_json)
 
 
 # --- 🔒 PUBLIC SHA-256 CUSTODY HASH VERIFICATION PORTAL (/verify) ---

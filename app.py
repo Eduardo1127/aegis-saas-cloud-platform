@@ -24,7 +24,7 @@ if sys.platform == "win32":
 
 import config
 import database
-from modules import ai_agentic_soc_copilot, cloud_security_auditor, red_recon_scanner
+from modules import ai_agentic_soc_copilot, cloud_security_auditor, red_recon_scanner, phishguard_engine
 
 # Ensure database tables and Admin Master credentials exist on startup
 database.init_db()
@@ -972,6 +972,79 @@ def public_demo_page():
 </body>
 </html>"""
     return make_response(html_demo)
+
+
+# --- 🎣 AEGIS PHISHGUARD INDEPENDENT PORTAL (/phishguard) ---
+
+@app.route("/phishguard", methods=["GET"])
+def public_phishguard_page():
+    company = request.args.get("company") or ""
+    employees = int(request.args.get("employees", 50))
+    template_id = request.args.get("template", "PAYROLL_UPDATE")
+    
+    result = None
+    if company:
+        try:
+            result = phishguard_engine.simulate_campaign(company, employees, template_id)
+            database.record_scan(1, "PHISHGUARD_SIMULATION", company, "SUCCESS", result["metricas_riesgo_humano"]["posture_score_humano"], json.dumps(result))
+        except Exception as e:
+            result = {"status": "ERROR", "message": str(e)}
+            
+    html_phish = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis PhishGuard — Simulador de Phishing & Riesgo Humano</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {{ background: #0a0d14; color: #f0f6fc; font-family: 'Outfit', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; margin: 0; }}
+        .box {{ max-width: 680px; width: 100%; background: rgba(22, 27, 34, 0.95); border: 1px solid rgba(48, 54, 61, 0.8); border-radius: 16px; padding: 36px; box-shadow: 0 12px 48px rgba(0,0,0,0.5); text-align: center; }}
+        .title {{ font-size: 26px; font-weight: 800; color: #bc8cff; margin-bottom: 8px; }}
+        .sub {{ font-size: 13px; color: #8b949e; margin-bottom: 24px; }}
+        .form-col {{ display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; text-align: left; }}
+        .input-field {{ background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 14px; color: #fff; font-size: 14px; width: 100%; box-sizing: border-box; }}
+        .btn-run {{ background: linear-gradient(135deg, #bc8cff, #58a6ff); color: #000; font-weight: 700; border: none; padding: 14px 24px; border-radius: 8px; cursor: pointer; font-size: 15px; width: 100%; }}
+        .res-card {{ background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 24px; text-align: left; margin-top: 24px; font-family: monospace; font-size: 13px; max-height: 360px; overflow-y: auto; }}
+        .badge {{ background: rgba(188, 140, 255, 0.15); border: 1px solid #bc8cff; color: #bc8cff; font-weight: 700; padding: 6px 12px; border-radius: 6px; display: inline-block; margin-bottom: 16px; font-size: 12px; }}
+        label {{ font-size: 12px; color: #8b949e; font-weight: 600; margin-bottom: 4px; display: block; }}
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="title">🎣 AEGIS PHISHGUARD</div>
+        <div class="sub">Simulador de Phishing Ético & Evaluación de Riesgo Humano en Empleados</div>
+        
+        <form action="/phishguard" method="GET" class="form-col">
+            <div>
+                <label>Nombre de la Empresa o Cliente:</label>
+                <input type="text" name="company" class="input-field" placeholder="ej. Farmacias Guadalajara / H-E-B" value="{company}" required>
+            </div>
+            <div>
+                <label>Número de Empleados Evaluados:</label>
+                <input type="number" name="employees" class="input-field" value="{employees}" min="1" max="10000" required>
+            </div>
+            <div>
+                <label>Vector de Simulación de Phishing:</label>
+                <select name="template" class="input-field">
+                    <option value="PAYROLL_UPDATE" {"selected" if template_id=="PAYROLL_UPDATE" else ""}> Actualización de Depósito de Nómina (Riesgo Crítico)</option>
+                    <option value="MICROSOFT_PASSWORD" {"selected" if template_id=="MICROSOFT_PASSWORD" else ""}>🔒 Restablecimiento de Contraseña Microsoft 365 (Riesgo Alto)</option>
+                    <option value="SAT_INVOICE" {"selected" if template_id=="SAT_INVOICE" else ""}>🏛️ Notificación Buzón Tributario SAT (Riesgo Crítico)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-run">🚀 Lanzar Campaña de Prueba</button>
+        </form>
+
+        {"<div class='res-card'><div class='badge'>🟣 CAMPAÑA SIMULADA EN VIVO</div><pre style='color:#58a6ff; white-space:pre-wrap;'>" + json.dumps(result, indent=2, ensure_ascii=False) + "</pre><div style='margin-top:16px; text-align:center;'><a href='/verify/" + (result.get("sha256_custody_hash","") if result else "") + "' style='color:#00ff88; text-decoration:none; font-weight:bold;'>🛡️ Validar Cadena de Custodia en /verify</a></div></div>" if result else "<p style='color:#8b949e; font-size:13px;'>💡 Configura los datos de tu empresa para evaluar la vulnerabilidad del personal.</p>"}
+
+        <div style="margin-top:24px; font-size:12px; color:#8b949e;">
+            © 2026 Aegis Prime Security — EMR CISO Office<br>
+            <a href="https://aegisprimesecurity.com" style="color:#58a6ff; text-decoration:none;">Volver a Aegis Prime Security</a>
+        </div>
+    </div>
+</body>
+</html>"""
+    return make_response(html_phish)
 
 
 # --- 🔒 PUBLIC SHA-256 CUSTODY HASH VERIFICATION PORTAL (/verify) ---
